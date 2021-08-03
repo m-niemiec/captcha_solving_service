@@ -23,9 +23,9 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#     'scrapy.pipelines.images.ImagesPipeline': 1
-# }
+ITEM_PIPELINES = {
+    'scraping_captcha_spider.pipelines.CustomImagesPipeline': 1
+}
 
 IMAGES_STORE = 'downloaded_captchas'
 

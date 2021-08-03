@@ -14,10 +14,7 @@ class CaptchaTypeA(spiders.CrawlSpider):
 
     custom_settings = {
         'DUPEFILTER_CLASS': 'scrapy.dupefilters.BaseDupeFilter',
-        'IMAGES_STORE': f'downloaded_captchas/{name}',
-        'ITEM_PIPELINES': {
-            'scraping_captcha_spider.pipelines.CustomImagesPipeline': 1
-        }
+        'IMAGES_STORE': f'downloaded_captchas/{name}'
     }
 
     def start_new_session(self):

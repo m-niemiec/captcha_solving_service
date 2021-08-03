@@ -1,4 +1,5 @@
 import os
+import re
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk, filedialog
@@ -23,7 +24,11 @@ def get_folder_path():
 
 
 def rename_image_file(event):
-    print('rename_image_file')
+    image_path = image_list[0][1].filename
+    image_directory = re.findall(r'(.+\/)', image_path)[0]
+    image_extension = re.findall(r'(\.\w+)', image_path)[0]
+
+    os.rename(image_path, image_directory + captcha_solution_text.get() + image_extension)
 
 
 def do_stuff():
@@ -33,9 +38,9 @@ def do_stuff():
         if image.endswith('jpeg'):
             image = Image.open(f'{folder}/{image}')
             tk_image = ImageTk.PhotoImage(image)
-            image_list.append(tk_image)
+            image_list.append((tk_image, image))
 
-    label = Label(image=image_list[0])
+    label = Label(image=image_list[0][0])
     label.grid(row=1, column=0, columnspan=3)
     label.place(relx=0.5, rely=0.5, anchor='center')
 
@@ -45,9 +50,6 @@ def do_stuff():
     captcha_solution.place(relx=0.5, rely=0.8, anchor='center')
 
     captcha_solution.bind('<Return>', rename_image_file)
-    # captcha_solution.pack()
-    # res = tk.Label(root)
-    # res.pack()
 
 
 folder_path = StringVar()

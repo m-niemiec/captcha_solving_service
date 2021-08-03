@@ -1,7 +1,7 @@
 from scrapy import FormRequest, Request
 from scrapy import spiders
 
-from items import CaptchaImageItem
+from scraping_captcha_spider.items import CaptchaImageItem
 
 
 class CaptchaTypeA(spiders.CrawlSpider):

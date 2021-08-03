@@ -7,7 +7,7 @@ from scrapy.utils.log import failure_to_exc_info
 from scrapy.utils.request import request_fingerprint
 from twisted.internet.defer import Deferred
 
-from items import CaptchaImageItem
+from scraping_captcha_spider.items import CaptchaImageItem
 
 # Declared logger for overwritten MediaPipeline method.
 logger = logging.getLogger(__name__)

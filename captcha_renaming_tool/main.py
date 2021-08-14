@@ -7,6 +7,7 @@ from tkinter import ttk, filedialog, messagebox
 
 from PIL import ImageTk, Image
 
+import helper_texts
 from helper_texts import show_help_text
 
 # TODO DONE [1] Add Success message when all images were renamed
@@ -236,7 +237,13 @@ class CaptchaRenamingTool:
 
     @staticmethod
     def show_help():
-        messagebox.showinfo('Help', show_help_text)
+        help_window = tk.Toplevel()
+
+        label = tk.Label(help_window, text=show_help_text)
+        label.pack(fill='x', padx=50, pady=50)
+
+        button_close = tk.Button(help_window, text="Close", command=help_window.destroy)
+        button_close.pack(fill='x')
 
 
 if __name__ == '__main__':

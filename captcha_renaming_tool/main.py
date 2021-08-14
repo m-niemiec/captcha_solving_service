@@ -77,44 +77,6 @@ class CaptchaRenamingTool:
         self.current_captcha_image.image = converted_image
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
-    # def change_black_white(self, mode):
-    #     self.current_captcha_image.destroy()
-    #
-    #     image = self.image_list[self.image_index][1]
-    #     print(f'image before - {image}')
-    #
-    #     converted_image = image.convert('L') if mode else image.convert('RGB')
-    #     print(f'image after - {converted_image}')
-    #     # self.image_list[self.image_index][1] = converted_image
-    #     # self.image_list[self.image_index][1].filename = image.filename
-    #
-    #     converted_image = ImageTk.PhotoImage(converted_image)
-    #
-    #     self.current_captcha_image = Label(image=converted_image)
-    #     self.current_captcha_image.image = converted_image
-    #     self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
-    #
-    # def change_contrast(self, mode):
-    #     self.current_captcha_image.destroy()
-    #
-    #     image = self.image_list[self.image_index][1]
-    #
-    #     if mode:
-    #         image_contrast = ImageEnhance.Contrast(image).enhance(2)
-    #         enhanced_image = ImageEnhance.Color(image_contrast).enhance(2)
-    #     else:
-    #         image_contrast = ImageEnhance.Contrast(image).enhance(1)
-    #         enhanced_image = ImageEnhance.Color(image_contrast).enhance(1)
-    #
-    #     self.image_list[self.image_index][1] = enhanced_image
-    #     self.image_list[self.image_index][1].filename = image.filename
-    #
-    #     converted_image = ImageTk.PhotoImage(enhanced_image)
-    #
-    #     self.current_captcha_image = Label(image=converted_image)
-    #     self.current_captcha_image.image = converted_image
-    #     self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
-
     def get_folder_path(self):
         # Reset variables that this function sets if users would like to select another folder.
         self.total_images_amount = -1
@@ -147,9 +109,11 @@ class CaptchaRenamingTool:
 
         next_image_button = ttk.Button(self.root, text='Next', command=partial(self.switch_captcha_image, 1))
         next_image_button.place(relx=0.85, rely=0.5, anchor='center')
+        self.root.bind('<Up>', partial(self.switch_captcha_image, 1))
 
         previous_image_button = ttk.Button(self.root, text='Previous', command=partial(self.switch_captcha_image, -1))
         previous_image_button.place(relx=0.15, rely=0.5, anchor='center')
+        self.root.bind('<Down>', partial(self.switch_captcha_image, -1))
 
         increase_image_size_button = ttk.Button(self.root, text='Zoom IN', command=partial(self.set_zoom, 'increase'))
         increase_image_size_button.grid(row=0, column=2)
@@ -203,7 +167,7 @@ class CaptchaRenamingTool:
 
         self.update_captcha_solution_entry()
 
-    def rename_image_file(self, event):
+    def rename_image_file(self):
         old_image_path = self.image_list[self.image_index][1].filename
         image_directory = re.findall(r'(.+\/)', old_image_path)[0]
         image_extension = re.findall(r'(\.\w+)', old_image_path)[0]
@@ -220,7 +184,7 @@ class CaptchaRenamingTool:
 
         self.update_renamed_images_count()
 
-    def switch_captcha_image(self, direction=1):
+    def switch_captcha_image(self, direction=1, event=None):
         try:
             image = self.image_list[self.image_index+direction][0]
             self.current_captcha_image.destroy()
@@ -257,7 +221,8 @@ class CaptchaRenamingTool:
         else:
             messagebox.showinfo('Success!', 'You renamed all captcha images in folder!')
 
-        self.renamed_total_images_amount = Label(text=f'Renamed {self.renamed_images_amount} images out of {self.total_images_amount}.')
+        self.renamed_total_images_amount = Label(text=f'Renamed {self.renamed_images_amount} '
+                                                      f'images out of {self.total_images_amount}.')
         self.renamed_total_images_amount.place(relx=0.5, rely=0.9, anchor='center')
 
     def update_captcha_solution_entry(self):
@@ -274,8 +239,8 @@ class CaptchaRenamingTool:
 
         def _on_entry_click(event):
             if self.captcha_solution_entry.get() == '(type captcha solution here)':
-                self.captcha_solution_entry.delete(0, "end")  # delete all the text in the entry
-                self.captcha_solution_entry.insert(0, '')  # Insert blank for user input
+                self.captcha_solution_entry.delete(0, 'end')
+                self.captcha_solution_entry.insert(0, '')
 
         def _on_focusout(event):
             if self.captcha_solution_entry.get() == '':

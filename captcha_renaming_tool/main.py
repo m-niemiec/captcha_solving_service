@@ -9,7 +9,13 @@ from PIL import ImageTk, Image
 
 from helper_texts import show_help_text
 
-
+# TODO DONE [1] Add Success message when all images were renamed
+# TODO DONE [2] Delete redundant chosen directory confirmation
+# TODO [3] Add proper help message text and instructions
+# TODO [4] Add additional image filters, b&w, zoom, contrast +/-
+# TODO [5] Tweak FrontEnd
+# TODO [6] Refactor
+# TODO [7] Build both DMG and EXE standalone files
 class CaptchaRenamingTool:
     folder_path = None
     captcha_solution_text = None
@@ -22,7 +28,11 @@ class CaptchaRenamingTool:
     renamed_images_amount = -1
     image_index = 0
     image_list = []
-    
+    current_zoom = 1
+    current_width = None
+    current_height = None
+    black_white_mode = False
+
     def __init__(self):
         self.root = Tk()
 
@@ -30,30 +40,43 @@ class CaptchaRenamingTool:
         self.root.title("Captcha Renaming Tool")
 
         # Size of the screen
-        screen_size = (700, 350)
+        screen_size = (900, 300)
         self.root.geometry(f'{screen_size[0]}x{screen_size[1]}')
 
-        self.folder_path = StringVar()
         self.captcha_solution_text = StringVar()
         self.current_captcha_name = StringVar()
 
         select_folder_button = ttk.Button(self.root, text='Select Folder', command=self.get_folder_path)
         select_folder_button.grid(row=0, column=0)
 
-        import_captchas_button = ttk.Button(self.root, text='Load Captchas', command=self.import_captchas)
-        import_captchas_button.grid(row=0, column=2)
-
         show_help_button = ttk.Button(self.root, text='Show Help', command=self.show_help)
         show_help_button.place(relx=0.5, rely=0.5, anchor='center')
 
         self.root.mainloop()
 
-    def get_folder_path(self):
-        folder_selected = filedialog.askdirectory()
-        self.folder_path.set(folder_selected)
+    def change_black_white(self, mode):
+        self.current_captcha_image.destroy()
 
-    def import_captchas(self):
-        folder = self.folder_path.get()
+        image = self.image_list[self.image_index][1]
+
+        converted_image = image.convert('L') if mode else image.convert('RGB')
+
+        converted_image = ImageTk.PhotoImage(converted_image)
+
+        self.current_captcha_image = Label(image=converted_image)
+        self.current_captcha_image.image = converted_image
+        self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
+
+    def get_folder_path(self):
+        # Reset variables that this function sets if users would like to select another folder.
+        self.total_images_amount = -1
+        self.image_list = []
+        try:
+            self.current_captcha_image.destroy()
+        except AttributeError:
+            pass
+
+        folder = filedialog.askdirectory()
 
         for image in os.listdir(folder):
             if image.lower().endswith(('jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'gif', 'webp')):
@@ -61,27 +84,69 @@ class CaptchaRenamingTool:
 
                 image = Image.open(f'{folder}/{image}')
                 tk_image = ImageTk.PhotoImage(image)
-                self.image_list.append((tk_image, image))
+
+                self.image_list.append([tk_image, image])
 
         self.current_captcha_image = Label(image=self.image_list[self.image_index][0])
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
+
+        self.update_captcha_image()
+
+        next_image_button = ttk.Button(self.root, text='Next', command=partial(self.switch_captcha_image, 1))
+        next_image_button.place(relx=0.85, rely=0.5, anchor='center')
+
+        previous_image_button = ttk.Button(self.root, text='Previous', command=partial(self.switch_captcha_image, -1))
+        previous_image_button.place(relx=0.15, rely=0.5, anchor='center')
+
+        increase_image_size_button = ttk.Button(self.root, text='Zoom IN', command=partial(self.set_zoom, 'increase'))
+        increase_image_size_button.grid(row=0, column=2)
+
+        decrease_image_size_button = ttk.Button(self.root, text='Zoom OUT', command=partial(self.set_zoom, 'decrease'))
+        decrease_image_size_button.grid(row=0, column=3)
+
+        change_black_white_button = ttk.Button(self.root, text='B&W Mode', command=self.set_black_white_mode)
+        change_black_white_button.grid(row=0, column=4)
+
+    def set_zoom(self, direction):
+        if direction == 'increase' and self.current_zoom < 2:
+            self.current_zoom += 0.25
+
+        elif direction == 'decrease' and self.current_zoom > 0.5:
+            self.current_zoom -= 0.25
+
+        self.update_captcha_image()
+
+    def set_black_white_mode(self):
+        self.black_white_mode = False if self.black_white_mode else True
+
+        self.update_captcha_image()
+
+    def update_captcha_image(self):
+        if self.current_width and self.current_height:
+            image = self.image_list[self.image_index][1]
+
+            resized_image = image.resize((int(self.current_width * self.current_zoom), int(self.current_height * self.current_zoom)))
+
+            self.image_list[self.image_index][1] = resized_image
+            self.image_list[self.image_index][1].filename = image.filename
+
+            resized_image = ImageTk.PhotoImage(resized_image)
+
+            self.current_captcha_image.destroy()
+            self.current_captcha_image = Label(image=resized_image)
+            self.current_captcha_image.image = resized_image
+            self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
+
+        if self.black_white_mode:
+            self.change_black_white(True)
+        else:
+            self.change_black_white(False)
 
         self.update_image_label()
 
         self.update_captcha_solution_entry()
 
         self.update_renamed_images_count()
-
-        # TODO FIX BUTTONS STUCK PROBLEM
-        next_image_button = ttk.Button(self.root, text='Next',
-                                       command=partial(self.switch_captcha_image, 1))
-        next_image_button.place(relx=0.85, rely=0.5, anchor='center')
-        next_image_button.bind('<Up>', partial(self.switch_captcha_image, 1))
-
-        previous_image_button = ttk.Button(self.root, text='Previous',
-                                           command=partial(self.switch_captcha_image, -1))
-        previous_image_button.place(relx=0.15, rely=0.5, anchor='center')
-        previous_image_button.bind('<Down>', partial(self.switch_captcha_image, -1))
 
     def rename_image_file(self, event):
         old_image_path = self.image_list[self.image_index][1].filename
@@ -101,21 +166,24 @@ class CaptchaRenamingTool:
         self.update_renamed_images_count()
 
     def switch_captcha_image(self, direction=1, event=None):
-        print('switch_captcha_image')
         try:
             image = self.image_list[self.image_index+direction][0]
             self.current_captcha_image.destroy()
             self.current_captcha_image = Label(image=image)
             self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
+            self.current_width = self.image_list[self.image_index+direction][1].width
+            self.current_height = self.image_list[self.image_index+direction][1].height
+
             self.image_index += direction
 
-            self.update_image_label()
+            self.update_captcha_image()
         except IndexError:
             pass
 
     def update_image_label(self):
         image_path = self.image_list[self.image_index][1].filename
+
         captcha_name = re.findall(r'.+\/(.+)\.', image_path)[0]
 
         try:
@@ -134,6 +202,8 @@ class CaptchaRenamingTool:
 
         if self.renamed_images_amount < self.total_images_amount:
             self.renamed_images_amount += 1
+        else:
+            messagebox.showinfo('Success!', 'You renamed all captcha images in folder!')
 
         self.renamed_total_images_amount = Label(text=f'Renamed {self.renamed_images_amount} images out of {self.total_images_amount}.')
         self.renamed_total_images_amount.place(relx=0.5, rely=0.9, anchor='center')

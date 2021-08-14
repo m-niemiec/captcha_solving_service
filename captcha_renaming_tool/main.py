@@ -12,7 +12,7 @@ from helper_texts import show_help_text
 # TODO DONE [1] Add Success message when all images were renamed
 # TODO DONE [2] Delete redundant chosen directory confirmation
 # TODO DONE [3] Add proper help message text and instructions
-# TODO [4] Add additional image filters, b&w, zoom, contrast +/-
+# TODO DONE [4] Add additional image filters, b&w, zoom, contrast +/-
 # TODO [5] Tweak FrontEnd
 # TODO [6] Refactor
 # TODO [7] Build both DMG and EXE standalone files
@@ -57,36 +57,63 @@ class CaptchaRenamingTool:
 
         self.root.mainloop()
 
-    def change_black_white(self, mode):
+    def apply_modes(self):
         self.current_captcha_image.destroy()
 
         image = self.image_list[self.image_index][1]
 
-        converted_image = image.convert('L') if mode else image.convert('RGB')
+        image = image.convert('L') if self.black_white_mode else image.convert('RGB')
 
-        converted_image = ImageTk.PhotoImage(converted_image)
-
-        self.current_captcha_image = Label(image=converted_image)
-        self.current_captcha_image.image = converted_image
-        self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
-
-    def change_contrast(self, mode):
-        self.current_captcha_image.destroy()
-
-        image = self.image_list[self.image_index][1]
-
-        if mode:
-            image_contrast = ImageEnhance.Contrast(image).enhance(2)
-            enhanced_image = ImageEnhance.Color(image_contrast).enhance(2)
+        if self.big_contrast_mode:
+            image = ImageEnhance.Contrast(image).enhance(2)
+            image = ImageEnhance.Color(image).enhance(2)
         else:
-            image_contrast = ImageEnhance.Contrast(image).enhance(1)
-            enhanced_image = ImageEnhance.Color(image_contrast).enhance(1)
+            image = ImageEnhance.Contrast(image).enhance(1)
+            image = ImageEnhance.Color(image).enhance(1)
 
-        converted_image = ImageTk.PhotoImage(enhanced_image)
+        converted_image = ImageTk.PhotoImage(image)
 
         self.current_captcha_image = Label(image=converted_image)
         self.current_captcha_image.image = converted_image
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
+
+    # def change_black_white(self, mode):
+    #     self.current_captcha_image.destroy()
+    #
+    #     image = self.image_list[self.image_index][1]
+    #     print(f'image before - {image}')
+    #
+    #     converted_image = image.convert('L') if mode else image.convert('RGB')
+    #     print(f'image after - {converted_image}')
+    #     # self.image_list[self.image_index][1] = converted_image
+    #     # self.image_list[self.image_index][1].filename = image.filename
+    #
+    #     converted_image = ImageTk.PhotoImage(converted_image)
+    #
+    #     self.current_captcha_image = Label(image=converted_image)
+    #     self.current_captcha_image.image = converted_image
+    #     self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
+    #
+    # def change_contrast(self, mode):
+    #     self.current_captcha_image.destroy()
+    #
+    #     image = self.image_list[self.image_index][1]
+    #
+    #     if mode:
+    #         image_contrast = ImageEnhance.Contrast(image).enhance(2)
+    #         enhanced_image = ImageEnhance.Color(image_contrast).enhance(2)
+    #     else:
+    #         image_contrast = ImageEnhance.Contrast(image).enhance(1)
+    #         enhanced_image = ImageEnhance.Color(image_contrast).enhance(1)
+    #
+    #     self.image_list[self.image_index][1] = enhanced_image
+    #     self.image_list[self.image_index][1].filename = image.filename
+    #
+    #     converted_image = ImageTk.PhotoImage(enhanced_image)
+    #
+    #     self.current_captcha_image = Label(image=converted_image)
+    #     self.current_captcha_image.image = converted_image
+    #     self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
     def get_folder_path(self):
         # Reset variables that this function sets if users would like to select another folder.
@@ -168,15 +195,17 @@ class CaptchaRenamingTool:
         self.current_captcha_image.image = resized_image
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
-        if self.black_white_mode:
-            self.change_black_white(True)
-        else:
-            self.change_black_white(False)
+        # if self.black_white_mode:
+        #     self.change_black_white(True)
+        # else:
+        #     self.change_black_white(False)
 
-        if self.big_contrast_mode:
-            self.change_contrast(True)
-        else:
-            self.change_contrast(False)
+        # if self.big_contrast_mode:
+        #     self.change_contrast(True)
+        # else:
+        #     self.change_contrast(False)
+
+        self.apply_modes()
 
         self.update_image_label()
 

@@ -143,6 +143,8 @@ class CaptchaRenamingTool:
 
         self.update_captcha_image()
 
+        self.update_renamed_images_count()
+
         next_image_button = ttk.Button(self.root, text='Next', command=partial(self.switch_captcha_image, 1))
         next_image_button.place(relx=0.85, rely=0.5, anchor='center')
 
@@ -195,23 +197,11 @@ class CaptchaRenamingTool:
         self.current_captcha_image.image = resized_image
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
-        # if self.black_white_mode:
-        #     self.change_black_white(True)
-        # else:
-        #     self.change_black_white(False)
-
-        # if self.big_contrast_mode:
-        #     self.change_contrast(True)
-        # else:
-        #     self.change_contrast(False)
-
         self.apply_modes()
 
         self.update_image_label()
 
         self.update_captcha_solution_entry()
-
-        self.update_renamed_images_count()
 
     def rename_image_file(self, event):
         old_image_path = self.image_list[self.image_index][1].filename
@@ -236,9 +226,6 @@ class CaptchaRenamingTool:
             self.current_captcha_image.destroy()
             self.current_captcha_image = Label(image=image)
             self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
-
-            self.current_width = self.image_list[self.image_index+direction][1].width
-            self.current_height = self.image_list[self.image_index+direction][1].height
 
             self.image_index += direction
 

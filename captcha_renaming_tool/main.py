@@ -15,29 +15,28 @@ from helper_texts import show_help_text
 
 
 class CaptchaRenamingTool:
-    folder_path = None
-    captcha_solution_text = None
-    root = None
-    current_captcha_name = None
     current_captcha_image = None
-    captcha_solution_entry = None
-    renamed_total_images_amount = None
     total_images_amount = 0
     renamed_images_amount = -1
     image_index = 0
     image_list = []
     current_zoom = 1
-    current_width = None
-    current_height = None
+    current_size = None
     black_white_mode = False
     big_contrast_mode = False
+    next_image_icon = None
+    previous_image_icon = None
+    increase_image_size_icon = None
+    decrease_image_size_icon = None
+    change_black_white_icon = None
+    change_contrast_color_icon = None
 
     def __init__(self):
         self.root = Tk()
 
         # Title of app
         self.root.title("Captcha Renaming Tool")
-        self.root.iconbitmap('media/main_icon.ico')
+
         self.root.tk.call('wm', 'iconphoto', self.root._w, tk.PhotoImage(file='media/main_icon.png'))
 
         # Size of the screen
@@ -45,7 +44,6 @@ class CaptchaRenamingTool:
         self.root.geometry(f'{screen_size[0]}x{screen_size[1]}')
 
         self.captcha_solution_text = StringVar()
-        self.current_captcha_name = StringVar()
 
         style = Style()
 
@@ -103,16 +101,16 @@ class CaptchaRenamingTool:
 
                 self.image_list.append([tk_image, image])
 
-        self.current_width = self.image_list[0][1].width
-        self.current_height = self.image_list[0][1].height
+        self.current_size = (self.image_list[0][1].width, self.image_list[0][1].height)
 
         self.current_captcha_image = Label(image=self.image_list[self.image_index][0])
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
         self.update_captcha_image()
-
         self.update_renamed_images_count()
+        self.render_additional_buttons()
 
+    def render_additional_buttons(self):
         # Icons in this method needs to have a reference to prevent garbage collector from deleting them.
         self.next_image_icon = tk.PhotoImage(file='media/next_icon.png').subsample(2, 2)
         next_image_button = ttk.Button(self.root, text='Next', command=partial(self.switch_captcha_image, 1),
@@ -168,7 +166,7 @@ class CaptchaRenamingTool:
     def update_captcha_image(self):
         image = self.image_list[self.image_index][1]
 
-        resized_image = image.resize((int(self.current_width * self.current_zoom), int(self.current_height * self.current_zoom)))
+        resized_image = image.resize((int(self.current_size[0] * self.current_zoom), int(self.current_size[1] * self.current_zoom)))
 
         self.image_list[self.image_index][1] = resized_image
         self.image_list[self.image_index][1].filename = image.filename
@@ -181,12 +179,10 @@ class CaptchaRenamingTool:
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
         self.apply_modes()
-
         self.update_image_label()
-
         self.update_captcha_solution_entry()
 
-    def rename_image_file(self):
+    def rename_image_file(self, event):
         old_image_path = self.image_list[self.image_index][1].filename
         image_directory = re.findall(r'(.+\/)', old_image_path)[0]
         image_extension = re.findall(r'(\.\w+)', old_image_path)[0]
@@ -198,9 +194,7 @@ class CaptchaRenamingTool:
         self.image_list[self.image_index][1].filename = new_image_path
 
         self.switch_captcha_image()
-
         self.update_captcha_solution_entry()
-
         self.update_renamed_images_count()
 
     def switch_captcha_image(self, direction=1, event=None):
@@ -217,78 +211,55 @@ class CaptchaRenamingTool:
             pass
 
     def update_image_label(self):
+        # TODO Check if we have memory leak here with infinite Labels!
         image_path = self.image_list[self.image_index][1].filename
 
         captcha_name = re.findall(r'.+\/(.+)\.', image_path)[0]
 
-        try:
-            self.current_captcha_name.destroy()
-        except AttributeError:
-            pass
-
-        self.current_captcha_name = Label(text=captcha_name, font=('calibri', 20))
-        self.current_captcha_name.place(relx=0.5, rely=0.25, anchor='center')
+        current_captcha_name = Label(text=captcha_name, font=('calibri', 20))
+        current_captcha_name.place(relx=0.5, rely=0.25, anchor='center')
 
     def update_renamed_images_count(self):
-        try:
-            self.renamed_total_images_amount.destroy()
-        except AttributeError:
-            pass
-
         if self.renamed_images_amount < self.total_images_amount:
             self.renamed_images_amount += 1
         else:
             messagebox.showinfo('Success!', 'You renamed all captcha images in folder!')
 
-        self.renamed_total_images_amount = Label(text=f'Renamed {self.renamed_images_amount} '
+        renamed_total_images_amount = Label(text=f'Renamed {self.renamed_images_amount} '
                                                       f'images out of {self.total_images_amount}.')
-        self.renamed_total_images_amount.place(relx=0.5, rely=0.9, anchor='center')
+        renamed_total_images_amount.place(relx=0.5, rely=0.9, anchor='center')
 
     def update_captcha_solution_entry(self):
-        try:
-            self.captcha_solution_entry.destroy()
-        except AttributeError:
-            pass
-
         self.captcha_solution_text = StringVar()
 
-        self.captcha_solution_entry = tk.Entry(self.root, textvariable=self.captcha_solution_text)
-        self.captcha_solution_entry.insert(0, '(type captcha solution here)')
-        self.captcha_solution_entry.place(relx=0.5, rely=0.8, anchor='center')
+        captcha_solution_entry = tk.Entry(self.root, textvariable=self.captcha_solution_text)
+        captcha_solution_entry.insert(0, '(type captcha solution here)')
+        captcha_solution_entry.place(relx=0.5, rely=0.8, anchor='center')
 
         def _on_entry_click(event):
-            if self.captcha_solution_entry.get() == '(type captcha solution here)':
-                self.captcha_solution_entry.delete(0, 'end')
-                self.captcha_solution_entry.insert(0, '')
+            if captcha_solution_entry.get() == '(type captcha solution here)':
+                captcha_solution_entry.delete(0, 'end')
+                captcha_solution_entry.insert(0, '')
 
         def _on_focusout(event):
-            if self.captcha_solution_entry.get() == '':
-                self.captcha_solution_entry.insert(0, '(type captcha solution here)')
+            if captcha_solution_entry.get() == '':
+                captcha_solution_entry.insert(0, '(type captcha solution here)')
 
-        self.captcha_solution_entry.bind('<FocusIn>', _on_entry_click)
-        self.captcha_solution_entry.bind('<FocusOut>', _on_focusout)
-        self.captcha_solution_entry.bind('<Return>', self.rename_image_file)
-        self.captcha_solution_entry.focus()
+        captcha_solution_entry.bind('<FocusIn>', _on_entry_click)
+        captcha_solution_entry.bind('<FocusOut>', _on_focusout)
+        captcha_solution_entry.bind('<Return>', self.rename_image_file)
+        captcha_solution_entry.focus()
 
     @staticmethod
     def show_help():
         help_window = tk.Toplevel()
 
         label = tk.Label(help_window, text=show_help_text)
-        label.pack(fill='x', padx=50, pady=50)
+        label.pack(padx=50, pady=50)
 
         button_close = ttk.Button(help_window, text="Close", command=help_window.destroy)
-        button_close.pack(fill='x')
+        button_close.pack()
 
 
 if __name__ == '__main__':
     CaptchaRenamingTool()
-#
-# def main():
-#     root = tk.Tk()
-#     app = CaptchaRenamingTool(root)
-#     root.mainloop()
-#
-#
-# if __name__ == '__main__':
-#     main()

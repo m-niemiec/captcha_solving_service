@@ -1,17 +1,13 @@
 import os
-import tkinter as tk
 import re
+import tkinter as tk
 from functools import partial
-from tkinter import *
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, Tk, StringVar, Label
 from tkinter.ttk import Style
 
 from PIL import ImageTk, Image, ImageEnhance
 
 from helper_texts import show_help_text
-
-# TODO [6] Refactor
-# TODO [7] Build both DMG and EXE standalone files
 
 
 class CaptchaRenamingTool:
@@ -24,26 +20,24 @@ class CaptchaRenamingTool:
     current_size = None
     black_white_mode = False
     big_contrast_mode = False
+    captcha_solution_text = None
     next_image_icon = None
     previous_image_icon = None
     increase_image_size_icon = None
     decrease_image_size_icon = None
     change_black_white_icon = None
     change_contrast_color_icon = None
+    current_captcha_name = None
+    renamed_total_images_amount = None
 
     def __init__(self):
         self.root = Tk()
 
-        # Title of app
         self.root.title("Captcha Renaming Tool")
-
         self.root.tk.call('wm', 'iconphoto', self.root._w, tk.PhotoImage(file='media/main_icon.png'))
 
-        # Size of the screen
         screen_size = (900, 300)
         self.root.geometry(f'{screen_size[0]}x{screen_size[1]}')
-
-        self.captcha_solution_text = StringVar()
 
         style = Style()
 
@@ -106,6 +100,12 @@ class CaptchaRenamingTool:
         self.current_captcha_image = Label(image=self.image_list[self.image_index][0])
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
+        self.current_captcha_name = Label(text='', font=('calibri', 20))
+        self.current_captcha_name.place(relx=0.5, rely=0.25, anchor='center')
+
+        self.renamed_total_images_amount = Label(text='')
+        self.renamed_total_images_amount.place(relx=0.5, rely=0.9, anchor='center')
+
         self.update_captcha_image()
         self.update_renamed_images_count()
         self.render_additional_buttons()
@@ -144,7 +144,7 @@ class CaptchaRenamingTool:
                                                   image=self.change_contrast_color_icon, compound='left')
         change_contrast_color_button.grid(row=0, column=5)
 
-    def set_zoom(self, direction):
+    def set_zoom(self, direction: int):
         if direction == 'increase' and self.current_zoom < 2:
             self.current_zoom += 0.25
 
@@ -166,7 +166,8 @@ class CaptchaRenamingTool:
     def update_captcha_image(self):
         image = self.image_list[self.image_index][1]
 
-        resized_image = image.resize((int(self.current_size[0] * self.current_zoom), int(self.current_size[1] * self.current_zoom)))
+        resized_image = image.resize((int(self.current_size[0] * self.current_zoom),
+                                      int(self.current_size[1] * self.current_zoom)))
 
         self.image_list[self.image_index][1] = resized_image
         self.image_list[self.image_index][1].filename = image.filename
@@ -197,7 +198,7 @@ class CaptchaRenamingTool:
         self.update_captcha_solution_entry()
         self.update_renamed_images_count()
 
-    def switch_captcha_image(self, direction=1, event=None):
+    def switch_captcha_image(self, direction: int = 1, event=None):
         try:
             image = self.image_list[self.image_index+direction][0]
             self.current_captcha_image.destroy()
@@ -211,13 +212,11 @@ class CaptchaRenamingTool:
             pass
 
     def update_image_label(self):
-        # TODO Check if we have memory leak here with infinite Labels!
         image_path = self.image_list[self.image_index][1].filename
 
         captcha_name = re.findall(r'.+\/(.+)\.', image_path)[0]
 
-        current_captcha_name = Label(text=captcha_name, font=('calibri', 20))
-        current_captcha_name.place(relx=0.5, rely=0.25, anchor='center')
+        self.current_captcha_name.config(text=captcha_name)
 
     def update_renamed_images_count(self):
         if self.renamed_images_amount < self.total_images_amount:
@@ -225,9 +224,8 @@ class CaptchaRenamingTool:
         else:
             messagebox.showinfo('Success!', 'You renamed all captcha images in folder!')
 
-        renamed_total_images_amount = Label(text=f'Renamed {self.renamed_images_amount} '
-                                                      f'images out of {self.total_images_amount}.')
-        renamed_total_images_amount.place(relx=0.5, rely=0.9, anchor='center')
+        self.renamed_total_images_amount.config(text=f'Renamed {self.renamed_images_amount} '
+                                                     f'images out of {self.total_images_amount}.')
 
     def update_captcha_solution_entry(self):
         self.captcha_solution_text = StringVar()

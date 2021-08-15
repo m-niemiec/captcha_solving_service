@@ -4,16 +4,12 @@ import re
 from functools import partial
 from tkinter import *
 from tkinter import ttk, filedialog, messagebox
+from tkinter.ttk import Style
 
 from PIL import ImageTk, Image, ImageEnhance
 
 from helper_texts import show_help_text
 
-# TODO DONE [1] Add Success message when all images were renamed
-# TODO DONE [2] Delete redundant chosen directory confirmation
-# TODO DONE [3] Add proper help message text and instructions
-# TODO DONE [4] Add additional image filters, b&w, zoom, contrast +/-
-# TODO [5] Tweak FrontEnd
 # TODO [6] Refactor
 # TODO [7] Build both DMG and EXE standalone files
 
@@ -41,6 +37,8 @@ class CaptchaRenamingTool:
 
         # Title of app
         self.root.title("Captcha Renaming Tool")
+        self.root.iconbitmap('media/main_icon.ico')
+        self.root.tk.call('wm', 'iconphoto', self.root._w, tk.PhotoImage(file='media/main_icon.png'))
 
         # Size of the screen
         screen_size = (900, 300)
@@ -49,10 +47,18 @@ class CaptchaRenamingTool:
         self.captcha_solution_text = StringVar()
         self.current_captcha_name = StringVar()
 
-        select_folder_button = ttk.Button(self.root, text='Select Folder', command=self.get_folder_path)
-        select_folder_button.grid(row=0, column=0)
+        style = Style()
 
-        show_help_button = ttk.Button(self.root, text='Show Help', command=self.show_help)
+        style.configure('TButton', font=('calibri', 15))
+
+        select_folder_icon = tk.PhotoImage(file='media/folder_icon.png').subsample(2, 2)
+        select_folder_button = ttk.Button(self.root, text='Select Folder', command=self.get_folder_path,
+                                          image=select_folder_icon, compound='left')
+        select_folder_button.grid(row=0, column=0, padx=10, pady=10)
+
+        show_help_icon = tk.PhotoImage(file='media/help_icon.png').subsample(2, 2)
+        show_help_button = ttk.Button(self.root, text='Show Help', command=self.show_help,
+                                      image=show_help_icon, compound='left')
         show_help_button.place(relx=0.5, rely=0.5, anchor='center')
 
         self.root.mainloop()
@@ -107,24 +113,37 @@ class CaptchaRenamingTool:
 
         self.update_renamed_images_count()
 
-        next_image_button = ttk.Button(self.root, text='Next', command=partial(self.switch_captcha_image, 1))
+        # Icons in this method needs to have a reference to prevent garbage collector from deleting them.
+        self.next_image_icon = tk.PhotoImage(file='media/next_icon.png').subsample(2, 2)
+        next_image_button = ttk.Button(self.root, text='Next', command=partial(self.switch_captcha_image, 1),
+                                       image=self.next_image_icon, compound='left')
         next_image_button.place(relx=0.85, rely=0.5, anchor='center')
         self.root.bind('<Up>', partial(self.switch_captcha_image, 1))
 
-        previous_image_button = ttk.Button(self.root, text='Previous', command=partial(self.switch_captcha_image, -1))
+        self.previous_image_icon = tk.PhotoImage(file='media/previous_icon.png').subsample(2, 2)
+        previous_image_button = ttk.Button(self.root, text='Previous', command=partial(self.switch_captcha_image, -1),
+                                           image=self.previous_image_icon, compound='left')
         previous_image_button.place(relx=0.15, rely=0.5, anchor='center')
         self.root.bind('<Down>', partial(self.switch_captcha_image, -1))
 
-        increase_image_size_button = ttk.Button(self.root, text='Zoom IN', command=partial(self.set_zoom, 'increase'))
+        self.increase_image_size_icon = tk.PhotoImage(file='media/zoomin_icon.png').subsample(2, 2)
+        increase_image_size_button = ttk.Button(self.root, text='Zoom IN', command=partial(self.set_zoom, 'increase'),
+                                                image=self.increase_image_size_icon, compound='left')
         increase_image_size_button.grid(row=0, column=2)
 
-        decrease_image_size_button = ttk.Button(self.root, text='Zoom OUT', command=partial(self.set_zoom, 'decrease'))
+        self.decrease_image_size_icon = tk.PhotoImage(file='media/zoomout_icon.png').subsample(2, 2)
+        decrease_image_size_button = ttk.Button(self.root, text='Zoom OUT', command=partial(self.set_zoom, 'decrease'),
+                                                image=self.decrease_image_size_icon, compound='left')
         decrease_image_size_button.grid(row=0, column=3)
 
-        change_black_white_button = ttk.Button(self.root, text='B&W Mode', command=self.set_black_white_mode)
+        self.change_black_white_icon = tk.PhotoImage(file='media/blackandwhite_icon.png').subsample(2, 2)
+        change_black_white_button = ttk.Button(self.root, text='B&W Mode', command=self.set_black_white_mode,
+                                               image=self.change_black_white_icon, compound='left')
         change_black_white_button.grid(row=0, column=4)
 
-        change_contrast_color_button = ttk.Button(self.root, text='Color&Contrast Mode', command=self.set_big_contrast_mode)
+        self.change_contrast_color_icon = tk.PhotoImage(file='media/increasedcolors_icon.png').subsample(2, 2)
+        change_contrast_color_button = ttk.Button(self.root, text='Color&Contrast Mode', command=self.set_big_contrast_mode,
+                                                  image=self.change_contrast_color_icon, compound='left')
         change_contrast_color_button.grid(row=0, column=5)
 
     def set_zoom(self, direction):
@@ -207,7 +226,7 @@ class CaptchaRenamingTool:
         except AttributeError:
             pass
 
-        self.current_captcha_name = Label(text=captcha_name)
+        self.current_captcha_name = Label(text=captcha_name, font=('calibri', 20))
         self.current_captcha_name.place(relx=0.5, rely=0.25, anchor='center')
 
     def update_renamed_images_count(self):
@@ -258,9 +277,18 @@ class CaptchaRenamingTool:
         label = tk.Label(help_window, text=show_help_text)
         label.pack(fill='x', padx=50, pady=50)
 
-        button_close = tk.Button(help_window, text="Close", command=help_window.destroy)
+        button_close = ttk.Button(help_window, text="Close", command=help_window.destroy)
         button_close.pack(fill='x')
 
 
 if __name__ == '__main__':
     CaptchaRenamingTool()
+#
+# def main():
+#     root = tk.Tk()
+#     app = CaptchaRenamingTool(root)
+#     root.mainloop()
+#
+#
+# if __name__ == '__main__':
+#     main()

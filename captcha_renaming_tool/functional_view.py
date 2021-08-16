@@ -8,60 +8,43 @@ from PIL import ImageTk, Image, ImageEnhance
 
 
 class AppFunctionalView:
-    current_captcha_image = None
-    total_images_amount = 0
-    renamed_images_amount = -1
-    image_index = 0
-    image_list = []
-    current_zoom = 1
-    current_size = None
-    black_white_mode = False
-    big_contrast_mode = False
-    captcha_solution_text = None
-    next_image_icon = None
-    previous_image_icon = None
-    increase_image_size_icon = None
-    decrease_image_size_icon = None
-    change_black_white_icon = None
-    change_contrast_color_icon = None
-    current_captcha_name = None
-    renamed_total_images_amount = None
-
     def __init__(self, root: Tk):
         self.root = root
 
+        self.current_captcha_image = None
+        self.total_images_amount: int = 0
+        self.renamed_images_amount: int = -1
+        self.image_index: int = 0
+        self.image_list: list[list] = []
+        self.current_zoom: float = 1
+        self.current_size = None
+        self.black_white_mode: bool = False
+        self.big_contrast_mode: bool = False
+        self.captcha_solution_text = None
+        self.next_image_icon = None
+        self.previous_image_icon = None
+        self.increase_image_size_icon = None
+        self.decrease_image_size_icon = None
+        self.change_black_white_icon = None
+        self.change_contrast_color_icon = None
+        self.current_captcha_name: Label = Label(text='', font=('calibri', 20))
+        self.renamed_total_images_amount: Label = Label(text='')
+
         self.get_folder_path()
-
-    def apply_modes(self):
-        self.current_captcha_image.destroy()
-
-        image = self.image_list[self.image_index][1]
-
-        image = image.convert('L') if self.black_white_mode else image.convert('RGB')
-
-        if self.big_contrast_mode:
-            image = ImageEnhance.Contrast(image).enhance(2)
-            image = ImageEnhance.Color(image).enhance(2)
-        else:
-            image = ImageEnhance.Contrast(image).enhance(1)
-            image = ImageEnhance.Color(image).enhance(1)
-
-        converted_image = ImageTk.PhotoImage(image)
-
-        self.current_captcha_image = Label(image=converted_image)
-        self.current_captcha_image.image = converted_image
-        self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
     def get_folder_path(self):
         # Reset variables that this function sets if users would like to select another folder.
-        self.total_images_amount = -1
-        self.image_list = []
+        self.total_images_amount: int = -1
+
         try:
             self.current_captcha_image.destroy()
         except AttributeError:
             pass
 
-        folder = filedialog.askdirectory()
+        folder: str = filedialog.askdirectory()
+
+        if not folder:
+            return
 
         for image in os.listdir(folder):
             if image.lower().endswith(('jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'gif', 'webp')):
@@ -72,20 +55,38 @@ class AppFunctionalView:
 
                 self.image_list.append([tk_image, image])
 
-        self.current_size = (self.image_list[0][1].width, self.image_list[0][1].height)
+        self.current_size: tuple[int, int] = (self.image_list[0][1].width, self.image_list[0][1].height)
 
-        self.current_captcha_image = Label(image=self.image_list[self.image_index][0])
+        self.current_captcha_image: Label = Label(image=self.image_list[self.image_index][0])
         self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
-        self.current_captcha_name = Label(text='', font=('calibri', 20))
         self.current_captcha_name.place(relx=0.5, rely=0.25, anchor='center')
 
-        self.renamed_total_images_amount = Label(text='')
         self.renamed_total_images_amount.place(relx=0.5, rely=0.9, anchor='center')
 
         self.update_captcha_image()
         self.update_renamed_images_count()
         self.render_additional_buttons()
+
+    def apply_modes(self):
+        self.current_captcha_image.destroy()
+
+        image: Image = self.image_list[self.image_index][1]
+
+        image = image.convert('L') if self.black_white_mode else image.convert('RGB')
+
+        if self.big_contrast_mode:
+            image = ImageEnhance.Contrast(image).enhance(2)
+            image = ImageEnhance.Color(image).enhance(2)
+        else:
+            image = ImageEnhance.Contrast(image).enhance(1)
+            image = ImageEnhance.Color(image).enhance(1)
+
+        converted_image: ImageTk = ImageTk.PhotoImage(image)
+
+        self.current_captcha_image: Label = Label(image=converted_image)
+        self.current_captcha_image.image = converted_image
+        self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
     def render_additional_buttons(self):
         # Icons in this method needs to have a reference to prevent garbage collector from deleting them.
@@ -131,22 +132,22 @@ class AppFunctionalView:
         self.update_captcha_image()
 
     def set_black_white_mode(self):
-        self.black_white_mode = False if self.black_white_mode else True
+        self.black_white_mode: bool = False if self.black_white_mode else True
 
         self.update_captcha_image()
 
     def set_big_contrast_mode(self):
-        self.big_contrast_mode = False if self.big_contrast_mode else True
+        self.big_contrast_mode: bool = False if self.big_contrast_mode else True
 
         self.update_captcha_image()
 
     def update_captcha_image(self):
-        image = self.image_list[self.image_index][1]
+        image: Image = self.image_list[self.image_index][1]
 
         resized_image = image.resize((int(self.current_size[0] * self.current_zoom),
                                       int(self.current_size[1] * self.current_zoom)))
 
-        self.image_list[self.image_index][1] = resized_image
+        self.image_list[self.image_index][1]: Image = resized_image
         self.image_list[self.image_index][1].filename = image.filename
 
         resized_image = ImageTk.PhotoImage(resized_image)
@@ -161,11 +162,11 @@ class AppFunctionalView:
         self.update_captcha_solution_entry()
 
     def rename_image_file(self, event):
-        old_image_path = self.image_list[self.image_index][1].filename
-        image_directory = re.findall(r'(.+\/)', old_image_path)[0]
-        image_extension = re.findall(r'(\.\w+)', old_image_path)[0]
+        old_image_path: str = self.image_list[self.image_index][1].filename
+        image_directory: str = re.findall(r'(.+\/)', old_image_path)[0]
+        image_extension: str = re.findall(r'(\.\w+)', old_image_path)[0]
 
-        new_image_path = image_directory + self.captcha_solution_text.get() + image_extension
+        new_image_path: str = image_directory + self.captcha_solution_text.get() + image_extension
 
         os.rename(old_image_path, new_image_path)
 
@@ -177,7 +178,7 @@ class AppFunctionalView:
 
     def switch_captcha_image(self, direction: int = 1, event=None):
         try:
-            image = self.image_list[self.image_index+direction][0]
+            image: ImageTk = self.image_list[self.image_index+direction][0]
             self.current_captcha_image.destroy()
             self.current_captcha_image = Label(image=image)
             self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
@@ -191,7 +192,7 @@ class AppFunctionalView:
     def update_image_label(self):
         image_path = self.image_list[self.image_index][1].filename
 
-        captcha_name = re.findall(r'.+\/(.+)\.', image_path)[0]
+        captcha_name: str = re.findall(r'.+\/(.+)\.', image_path)[0]
 
         self.current_captcha_name.config(text=captcha_name)
 

@@ -34,7 +34,7 @@ class AppFunctionalView:
 
     def get_folder_path(self):
         # Reset variables that this function sets if users would like to select another folder.
-        self.total_images_amount: int = -1
+        self.total_images_amount: int = 0
 
         try:
             self.current_captcha_image.destroy()
@@ -166,15 +166,23 @@ class AppFunctionalView:
         image_directory: str = re.findall(r'(.+\/)', old_image_path)[0]
         image_extension: str = re.findall(r'(\.\w+)', old_image_path)[0]
 
+        # If user didn't provide any name, do nothing.
+        if not self.captcha_solution_text.get():
+            return
+
         new_image_path: str = image_directory + self.captcha_solution_text.get() + image_extension
 
-        os.rename(old_image_path, new_image_path)
+        if os.path.isfile(new_image_path):
+            messagebox.showerror('Warning!', 'Image with this name already exist!')
+        else:
+            os.replace(old_image_path, new_image_path)
 
-        self.image_list[self.image_index][1].filename = new_image_path
+            self.image_list[self.image_index][1].filename = new_image_path
 
-        self.switch_captcha_image()
-        self.update_captcha_solution_entry()
-        self.update_renamed_images_count()
+            self.switch_captcha_image()
+            self.update_captcha_solution_entry()
+            self.update_renamed_images_count()
+            self.update_image_label()
 
     def switch_captcha_image(self, direction: int = 1, event=None):
         try:
@@ -183,7 +191,8 @@ class AppFunctionalView:
             self.current_captcha_image = Label(image=image)
             self.current_captcha_image.place(relx=0.5, rely=0.5, anchor='center')
 
-            self.image_index += direction
+            if self.image_index > 0 or direction == 1:
+                self.image_index += direction
 
             self.update_captcha_image()
         except IndexError:
@@ -197,9 +206,9 @@ class AppFunctionalView:
         self.current_captcha_name.config(text=captcha_name)
 
     def update_renamed_images_count(self):
-        if self.renamed_images_amount < self.total_images_amount:
-            self.renamed_images_amount += 1
-        else:
+        self.renamed_images_amount += 1
+
+        if self.renamed_images_amount == self.total_images_amount:
             messagebox.showinfo('Success!', 'You renamed all captcha images in folder!')
 
         self.renamed_total_images_amount.config(text=f'Renamed {self.renamed_images_amount} '

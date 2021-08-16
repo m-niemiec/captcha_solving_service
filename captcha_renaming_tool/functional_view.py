@@ -27,8 +27,8 @@ class AppFunctionalView:
         self.decrease_image_size_icon = None
         self.change_black_white_icon = None
         self.change_contrast_color_icon = None
-        self.current_captcha_name: Label = Label(text='', font=('calibri', 20))
-        self.renamed_total_images_amount: Label = Label(text='')
+        self.current_captcha_name: Label = Label(text='', font=('calibri', 20), foreground='#D4d4d4', background='#313232')
+        self.renamed_total_images_amount: Label = Label(text='', foreground='#D4d4d4', background='#313232')
 
         self.get_folder_path()
 
@@ -105,22 +105,22 @@ class AppFunctionalView:
         self.increase_image_size_icon = tk.PhotoImage(file='media/zoomin_icon.png').subsample(2, 2)
         increase_image_size_button = ttk.Button(self.root, text='Zoom IN', command=partial(self.set_zoom, 'increase'),
                                                 image=self.increase_image_size_icon, compound='left')
-        increase_image_size_button.grid(row=0, column=2)
+        increase_image_size_button.grid(row=0, column=2, padx=3, pady=3)
 
         self.decrease_image_size_icon = tk.PhotoImage(file='media/zoomout_icon.png').subsample(2, 2)
         decrease_image_size_button = ttk.Button(self.root, text='Zoom OUT', command=partial(self.set_zoom, 'decrease'),
                                                 image=self.decrease_image_size_icon, compound='left')
-        decrease_image_size_button.grid(row=0, column=3)
+        decrease_image_size_button.grid(row=0, column=3, padx=3, pady=3)
 
         self.change_black_white_icon = tk.PhotoImage(file='media/blackandwhite_icon.png').subsample(2, 2)
         change_black_white_button = ttk.Button(self.root, text='B&W Mode', command=self.set_black_white_mode,
                                                image=self.change_black_white_icon, compound='left')
-        change_black_white_button.grid(row=0, column=4)
+        change_black_white_button.grid(row=0, column=4, padx=3, pady=3)
 
         self.change_contrast_color_icon = tk.PhotoImage(file='media/increasedcolors_icon.png').subsample(2, 2)
         change_contrast_color_button = ttk.Button(self.root, text='Color&Contrast Mode', command=self.set_big_contrast_mode,
                                                   image=self.change_contrast_color_icon, compound='left')
-        change_contrast_color_button.grid(row=0, column=5)
+        change_contrast_color_button.grid(row=0, column=5, padx=3, pady=3)
 
     def set_zoom(self, direction: int):
         if direction == 'increase' and self.current_zoom < 2:
@@ -217,7 +217,8 @@ class AppFunctionalView:
     def update_captcha_solution_entry(self):
         self.captcha_solution_text = StringVar()
 
-        captcha_solution_entry = tk.Entry(self.root, textvariable=self.captcha_solution_text)
+        captcha_solution_entry = tk.Entry(self.root, textvariable=self.captcha_solution_text, background='#4e4e4e',
+                                          foreground='#D4d4d4', borderwidth='0', highlightcolor='#313232')
         captcha_solution_entry.insert(0, '(type captcha solution here)')
         captcha_solution_entry.place(relx=0.5, rely=0.8, anchor='center')
 

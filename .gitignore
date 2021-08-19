@@ -1,6 +1,7 @@
 TO_DO.rtf
 *scraping_captcha_dataset-env
 *captcha_renaming_tool-env
+*captcha_solving_ocr-env
 
 # Distribution / packaging
 **.Python

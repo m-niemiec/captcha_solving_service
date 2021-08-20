@@ -18,11 +18,11 @@ I did only some minor changes and refactored code a little bit so it could be di
 
 def main():
     # Name of data set to train
-    captcha_set_to_train = 'captcha_type_b'
+    captcha_set_to_train: str = 'captcha_type_b'
     # Image format
-    image_format = 'jpeg'
+    image_format: str = 'jpeg'
     # Path to the data set to train
-    data_dir = Path(f'./captcha_data_sets/{captcha_set_to_train}')
+    data_dir: Path = Path(f'./captcha_data_sets/{captcha_set_to_train}')
 
     # Get prepared data
     prepared_data = PrepareData(data_dir, image_format, captcha_set_to_train)

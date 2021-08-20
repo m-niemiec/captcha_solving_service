@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,7 +9,7 @@ from tensorflow.keras import layers
 
 
 class PrepareData:
-    def __init__(self, data_dir, image_format, captcha_set_to_train):
+    def __init__(self, data_dir: Path, image_format: str, captcha_set_to_train: str):
         self.image_format = image_format
         self.captcha_set_to_train = captcha_set_to_train
 

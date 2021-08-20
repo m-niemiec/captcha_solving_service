@@ -22,7 +22,7 @@ def main():
     # Image format
     image_format = 'jpeg'
     # Path to the data set to train
-    data_dir = Path(f"./captcha_data_sets/{captcha_set_to_train}")
+    data_dir = Path(f'./captcha_data_sets/{captcha_set_to_train}')
 
     # Get prepared data
     prepared_data = PrepareData(data_dir, image_format, captcha_set_to_train)

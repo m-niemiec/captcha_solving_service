@@ -11,39 +11,39 @@ class BuildModel:
     def build_model(self):
         # Inputs to the model
         input_img = layers.Input(
-            shape=(self.prepare_data.img_width, self.prepare_data.img_height, 1), name="image", dtype="float32"
+            shape=(self.prepare_data.img_width, self.prepare_data.img_height, 1), name='image', dtype='float32'
         )
-        labels = layers.Input(name="label", shape=(None,), dtype="float32")
+        labels = layers.Input(name='label', shape=(None,), dtype='float32')
 
         # First conv block
         x = layers.Conv2D(
             32,
             (3, 3),
-            activation="relu",
-            kernel_initializer="he_normal",
-            padding="same",
-            name="Conv1",
+            activation='relu',
+            kernel_initializer='he_normal',
+            padding='same',
+            name='Conv1',
         )(input_img)
-        x = layers.MaxPooling2D((2, 2), name="pool1")(x)
+        x = layers.MaxPooling2D((2, 2), name='pool1')(x)
 
         # Second conv block
         x = layers.Conv2D(
             64,
             (3, 3),
-            activation="relu",
-            kernel_initializer="he_normal",
-            padding="same",
-            name="Conv2",
+            activation='relu',
+            kernel_initializer='he_normal',
+            padding='same',
+            name='Conv2',
         )(x)
-        x = layers.MaxPooling2D((2, 2), name="pool2")(x)
+        x = layers.MaxPooling2D((2, 2), name='pool2')(x)
 
         # We have used two max pool with pool size and strides 2.
         # Hence, downsampled feature maps are 4x smaller. The number of
         # filters in the last layer is 64. Reshape accordingly before
         # passing the output to the RNN part of the model
         new_shape = ((self.prepare_data.img_width // 4), (self.prepare_data.img_height // 4) * 64)
-        x = layers.Reshape(target_shape=new_shape, name="reshape")(x)
-        x = layers.Dense(64, activation="relu", name="dense1")(x)
+        x = layers.Reshape(target_shape=new_shape, name='reshape')(x)
+        x = layers.Dense(64, activation='relu', name='dense1')(x)
         x = layers.Dropout(0.2)(x)
 
         # RNNs
@@ -52,15 +52,15 @@ class BuildModel:
 
         # Output layer
         x = layers.Dense(
-            len(self.prepare_data.char_to_num.get_vocabulary()) + 1, activation="softmax", name="dense2", kernel_initializer='he_normal'
+            len(self.prepare_data.char_to_num.get_vocabulary()) + 1, activation='softmax', name='dense2', kernel_initializer='he_normal'
         )(x)
 
         # Add CTC layer for calculating CTC loss at each step
-        output = CTCLayer(name="ctc_loss")(labels, x)
+        output = CTCLayer(name='ctc_loss')(labels, x)
 
         # Define the model
         model = keras.models.Model(
-            inputs=[input_img, labels], outputs=output, name="ocr_model_v1"
+            inputs=[input_img, labels], outputs=output, name='ocr_model_v1'
         )
 
         # Old optimizer

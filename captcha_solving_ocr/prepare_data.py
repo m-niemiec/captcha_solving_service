@@ -13,14 +13,14 @@ class PrepareData:
         self.captcha_set_to_train = captcha_set_to_train
 
         # Get list of all the images
-        images = sorted(list(map(str, list(data_dir.glob(f"*.{image_format}")))))
-        labels = [img.split(os.path.sep)[-1].split(f".{image_format}")[0] for img in images]
+        images = sorted(list(map(str, list(data_dir.glob(f'*.{image_format}')))))
+        labels = [img.split(os.path.sep)[-1].split(f'.{image_format}')[0] for img in images]
         characters = set(char for label in labels for char in label)
 
-        logging.info("Number of images found: ", len(images))
-        logging.info("Number of labels found: ", len(labels))
-        logging.info("Number of unique characters: ", len(characters))
-        logging.info("Characters present: ", characters)
+        logging.info('Number of images found: ', len(images))
+        logging.info('Number of labels found: ', len(labels))
+        logging.info('Number of unique characters: ', len(characters))
+        logging.info('Characters present: ', characters)
 
         # Batch size for training and validation
         batch_size = 16
@@ -68,14 +68,14 @@ class PrepareData:
     def show_train_data_set(self):
         _, ax = plt.subplots(4, 4, figsize=(10, 5))
         for batch in self.train_dataset.take(1):
-            images = batch["image"]
-            labels = batch["label"]
+            images = batch['image']
+            labels = batch['label']
             for i in range(16):
-                img = (images[i] * 255).numpy().astype("uint8")
-                label = tf.strings.reduce_join(self.num_to_char(labels[i])).numpy().decode("utf-8")
-                ax[i // 4, i % 4].imshow(img[:, :, 0].T, cmap="gray")
+                img = (images[i] * 255).numpy().astype('uint8')
+                label = tf.strings.reduce_join(self.num_to_char(labels[i])).numpy().decode('utf-8')
+                ax[i // 4, i % 4].imshow(img[:, :, 0].T, cmap='gray')
                 ax[i // 4, i % 4].set_title(label)
-                ax[i // 4, i % 4].axis("off")
+                ax[i // 4, i % 4].axis('off')
 
         plt.show()
 
@@ -95,10 +95,10 @@ class PrepareData:
         # dimension to correspond to the width of the image.
         img = tf.transpose(img, perm=[1, 0, 2])
         # 6. Map the characters in label to numbers
-        label = self.char_to_num(tf.strings.unicode_split(label, input_encoding="UTF-8"))
+        label = self.char_to_num(tf.strings.unicode_split(label, input_encoding='UTF-8'))
 
         # 7. Return a dict as our model is expecting two inputs
-        return {"image": img, "label": label}
+        return {'image': img, 'label': label}
 
     @staticmethod
     def split_data(images, labels, train_size=0.9, shuffle=True):

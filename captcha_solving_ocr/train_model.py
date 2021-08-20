@@ -1,14 +1,15 @@
 import logging
+
 from tensorflow import keras
 
-from prepare_data import PrepareData
 
-
-class TrainModel(PrepareData):
-    prediction_model = None
+class TrainModel:
+    def __init__(self, prepare_data):
+        self.prepare_data = prepare_data
+        self.prediction_model = None
 
     def train_model(self, model):
-        epochs = 250
+        epochs = 300
         early_stopping_patience = 50
         # Add early stopping
         early_stopping = keras.callbacks.EarlyStopping(
@@ -16,9 +17,9 @@ class TrainModel(PrepareData):
         )
 
         # Train the model
-        history = model.fit(
-            self.train_dataset,
-            validation_data=self.validation_dataset,
+        model.fit(
+            self.prepare_data.train_dataset,
+            validation_data=self.prepare_data.validation_dataset,
             epochs=epochs,
             callbacks=[early_stopping],
         )
@@ -31,7 +32,7 @@ class TrainModel(PrepareData):
 
         # Save model
         logging.info("Saving model ...")
-        model.save(f"{self.captcha_set_to_train}.h5")
-        logging.info(f"Model saved under name - {self.captcha_set_to_train}.h5")
+        model.save(f"{self.prepare_data.captcha_set_to_train}.h5")
+        logging.info(f"Model saved under name - {self.prepare_data.captcha_set_to_train}.h5")
 
         return self.prediction_model

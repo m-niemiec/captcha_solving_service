@@ -1,15 +1,17 @@
 from tensorflow import keras
 from tensorflow.keras import layers
 
-from prepare_data import PrepareData
 from ctc_layer import CTCLayer
 
 
-class BuildModel(PrepareData):
+class BuildModel:
+    def __init__(self, prepare_data):
+        self.prepare_data = prepare_data
+
     def build_model(self):
         # Inputs to the model
         input_img = layers.Input(
-            shape=(self.img_width, self.img_height, 1), name="image", dtype="float32"
+            shape=(self.prepare_data.img_width, self.prepare_data.img_height, 1), name="image", dtype="float32"
         )
         labels = layers.Input(name="label", shape=(None,), dtype="float32")
 
@@ -39,7 +41,7 @@ class BuildModel(PrepareData):
         # Hence, downsampled feature maps are 4x smaller. The number of
         # filters in the last layer is 64. Reshape accordingly before
         # passing the output to the RNN part of the model
-        new_shape = ((self.img_width // 4), (self.img_height // 4) * 64)
+        new_shape = ((self.prepare_data.img_width // 4), (self.prepare_data.img_height // 4) * 64)
         x = layers.Reshape(target_shape=new_shape, name="reshape")(x)
         x = layers.Dense(64, activation="relu", name="dense1")(x)
         x = layers.Dropout(0.2)(x)
@@ -50,7 +52,7 @@ class BuildModel(PrepareData):
 
         # Output layer
         x = layers.Dense(
-            len(self.char_to_num.get_vocabulary()) + 1, activation="softmax", name="dense2", kernel_initializer='he_normal'
+            len(self.prepare_data.char_to_num.get_vocabulary()) + 1, activation="softmax", name="dense2", kernel_initializer='he_normal'
         )(x)
 
         # Add CTC layer for calculating CTC loss at each step

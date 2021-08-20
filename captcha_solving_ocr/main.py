@@ -19,25 +19,27 @@ I did only some minor changes and refactored code a little bit so it could be di
 def main():
     # Name of data set to train
     captcha_set_to_train = 'captcha_type_b'
-    # Path to the data set to train
-    data_dir = Path(f"./captcha_data_sets/{captcha_set_to_train}")
     # Image format
     image_format = 'jpeg'
+    # Path to the data set to train
+    data_dir = Path(f"./captcha_data_sets/{captcha_set_to_train}")
 
-    arguments = (data_dir, image_format, captcha_set_to_train)
+    # Get prepared data
+    prepared_data = PrepareData(data_dir, image_format, captcha_set_to_train)
 
     # Show training data set
-    PrepareData(*arguments).show_train_data_set()
+    prepared_data.show_train_data_set()
 
     # Get model
-    model = BuildModel(*arguments).build_model()
+    model = BuildModel(prepared_data)
+    model = model.build_model()
     model.summary()
 
     # Train Model
-    trained_model = TrainModel(*arguments).train_model(model)
+    trained_model = TrainModel(prepared_data).train_model(model)
 
     # Show Model Accuracy
-    CheckModelAccuracy(*arguments).show_validation_dataset(trained_model)
+    CheckModelAccuracy(prepared_data).show_validation_dataset(trained_model)
 
 
 if __name__ == '__main__':

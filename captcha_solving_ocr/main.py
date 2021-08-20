@@ -4,6 +4,11 @@ from build_model import BuildModel
 from check_model_accuracy import CheckModelAccuracy
 from prepare_data import PrepareData
 from train_model import TrainModel
+from twiggy import quick_setup, log
+
+quick_setup()  # Set basic logging functions from Twiggy
+
+from captcha_type_recognizer import captcha_type_recognizer
 
 """
 !!! IMPORTANT !!!
@@ -17,6 +22,14 @@ I did only some minor changes and refactored code a little bit so it could be di
 
 
 def main():
+    log.info(f' {"-" * 10} Starting ... {"-" * 10} ')
+    # Set True to update captcha type recognizer model
+    update_captcha_recognizer: bool = True
+
+    if update_captcha_recognizer:
+        log.info(f' {"-" * 10} Captcha Type Recognizer model WILL be updated. {"-" * 10} ')
+        captcha_type_recognizer.train_recognizer_model()
+
     # Name of data set to train
     captcha_set_to_train: str = 'captcha_type_b'
     # Image format
@@ -40,6 +53,8 @@ def main():
 
     # Show Model Accuracy
     CheckModelAccuracy(prepared_data).show_validation_dataset(trained_model)
+
+    log.info(f' {"-" * 10} DONE! {"-" * 10} ')
 
 
 if __name__ == '__main__':

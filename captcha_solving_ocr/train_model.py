@@ -1,6 +1,7 @@
-import logging
-
 from tensorflow import keras
+from twiggy import quick_setup, log
+
+quick_setup()  # Set basic logging functions from Twiggy
 
 
 class TrainModel:
@@ -31,8 +32,8 @@ class TrainModel:
         self.prediction_model.summary()
 
         # Save model
-        logging.info('Saving model ...')
+        log.info(f' {"-" * 10} Saving model ... {"-" * 10} ')
         model.save(f'{self.prepare_data.captcha_set_to_train}.h5')
-        logging.info(f'Model saved under name - {self.prepare_data.captcha_set_to_train}.h5')
+        log.info(f' {"-" * 10} Model saved under name: {self.prepare_data.captcha_set_to_train}.h5 {"-" * 10} ')
 
         return self.prediction_model

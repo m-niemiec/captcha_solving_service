@@ -1,4 +1,3 @@
-import logging
 import os
 from pathlib import Path
 
@@ -6,6 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
+from twiggy import quick_setup, log
+
+quick_setup()  # Set basic logging functions from Twiggy
 
 
 class PrepareData:
@@ -18,10 +20,10 @@ class PrepareData:
         labels = [img.split(os.path.sep)[-1].split(f'.{image_format}')[0] for img in images]
         characters = set(char for label in labels for char in label)
 
-        logging.info('Number of images found: ', len(images))
-        logging.info('Number of labels found: ', len(labels))
-        logging.info('Number of unique characters: ', len(characters))
-        logging.info('Characters present: ', characters)
+        log.info(f' {"-" * 10} Number of images found: {len(images)} {"-" * 10} ')
+        log.info(f' {"-" * 10} Number of labels found: {len(labels)} {"-" * 10} ')
+        log.info(f' {"-" * 10} Number of unique characters: {len(characters)} {"-" * 10} ')
+        log.info(f' {"-" * 10} Characters present: {list(characters)} {"-" * 10} ')
 
         # Batch size for training and validation
         batch_size = 16

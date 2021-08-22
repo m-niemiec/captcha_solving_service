@@ -1,14 +1,15 @@
 from pathlib import Path
 
+from twiggy import quick_setup, log
+
 from build_model import BuildModel
+from captcha_type_recognizer import captcha_type_recognizer
 from check_model_accuracy import CheckModelAccuracy
 from prepare_data import PrepareData
 from train_model import TrainModel
-from twiggy import quick_setup, log
 
 quick_setup()  # Set basic logging functions from Twiggy
 
-from captcha_type_recognizer import captcha_type_recognizer
 
 """
 !!! IMPORTANT !!!

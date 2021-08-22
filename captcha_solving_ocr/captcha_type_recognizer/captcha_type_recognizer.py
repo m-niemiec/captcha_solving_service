@@ -23,6 +23,7 @@ def train_recognizer_model():
     """
 
     model = Sequential()
+
     model.add(Conv2D(NUM_FILTERS, (FILTER_SIZE, FILTER_SIZE), input_shape=(INPUT_SIZE, INPUT_SIZE, 3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(MAXPOOL_SIZE, MAXPOOL_SIZE)))
     model.add(Conv2D(NUM_FILTERS, (FILTER_SIZE, FILTER_SIZE), activation='relu'))
@@ -31,6 +32,7 @@ def train_recognizer_model():
     model.add(Dense(units=128, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(units=1, activation='sigmoid'))
+
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     training_src: Path = Path('./captcha_data_sets/')

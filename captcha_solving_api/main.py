@@ -1,12 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from logzero import logger
+
+from solve_captcha import SolveCaptcha
 
 app = FastAPI()
 
 
-@app.get('/')
-async def root():
-    return {'message': 'Hello World'}
+@app.post("/upload_captcha")
+async def create_upload_file(captcha_image: UploadFile = File(...)):
+
+    solution = await SolveCaptcha().get_solution(captcha_image)
+
+    return solution
 
 
 @app.get('/health_check')

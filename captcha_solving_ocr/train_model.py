@@ -11,7 +11,7 @@ class TrainModel:
 
     def train_model(self, model):
         epochs = 300
-        early_stopping_patience = 50
+        early_stopping_patience = 100
         # Add early stopping
         early_stopping = keras.callbacks.EarlyStopping(
             monitor='val_loss', patience=early_stopping_patience, restore_best_weights=True

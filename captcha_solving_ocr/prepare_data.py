@@ -1,4 +1,5 @@
 import os
+import pickle
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -19,6 +20,11 @@ class PrepareData:
         images = sorted(list(map(str, list(data_dir.glob(f'*.{image_format}')))))
         labels = [img.split(os.path.sep)[-1].split(f'.{image_format}')[0] for img in images]
         characters = set(char for label in labels for char in label)
+
+        # We need to save current set to maintain characters order to be able to receive correct predictions from model
+        # loaded elsewhere.
+        with open(f'{captcha_set_to_train}.pickle', 'wb') as file:
+            pickle.dump(list(characters), file)
 
         log.info(f' {"-" * 10} Number of images found: {len(images)} {"-" * 10} ')
         log.info(f' {"-" * 10} Number of labels found: {len(labels)} {"-" * 10} ')

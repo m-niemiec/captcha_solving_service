@@ -1,4 +1,7 @@
+import os
 import pickle
+import re
+import uuid
 from io import BytesIO
 
 import keras
@@ -18,15 +21,27 @@ class SolveCaptcha:
 
     async def get_solution(self, captcha_image):
         trained_model = load_model('trained_models/captcha_type_b.h5', custom_objects={'CTCLayer': CTCLayer})
+        accepted_formats = ['jpg', 'jpeg', 'png']
 
-        self.image_format = 'jpeg'
+        try:
+            self.image_format = re.findall('.+\.(.+)', captcha_image.filename)[0]
+        except IndexError:
+            return 'ERROR'
+
+        if self.image_format.lower() not in accepted_formats:
+            return 'ERROR'
 
         stream = BytesIO(await captcha_image.read())
         image = Image.open(stream).convert("RGB")
         stream.close()
-        image.save('TEMP_CAPTCHAS/captcha.jpeg', 'JPEG')
 
-        images = ['TEMP_CAPTCHAS/captcha.jpeg']
+        image_name = uuid.uuid4().hex
+
+        image_path = f'TEMP_CAPTCHAS/{image_name}.{self.image_format}'
+
+        image.save(image_path)
+
+        images = [image_path]
 
         with open("trained_models/captcha_type_b.pickle", "rb") as file:
             characters = pickle.load(file)
@@ -59,6 +74,8 @@ class SolveCaptcha:
             preds = prediction_model.predict(batch_images)
 
             pred_texts = self.decode_batch_predictions(preds)[0]
+
+            os.remove(image_path)
 
             return pred_texts
 

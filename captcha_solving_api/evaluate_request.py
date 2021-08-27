@@ -3,11 +3,12 @@ import uuid
 from io import BytesIO
 
 from PIL import Image
+from fastapi import UploadFile
 
 
 class EvaluateRequest:
     @staticmethod
-    async def analyze_image(captcha_image):
+    async def analyze_image(captcha_image: UploadFile) -> tuple[str, str]:
         accepted_formats = ['jpg', 'jpeg', 'png']
 
         try:

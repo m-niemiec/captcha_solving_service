@@ -15,7 +15,7 @@ class SolveCaptcha:
     char_to_num = None
     num_to_char = None
 
-    async def get_solution(self, image_format, image_path, captcha_type):
+    async def get_solution(self, image_format: str, image_path: str, captcha_type: int) -> str:
         self.image_format = image_format
 
         trained_model, characters, captcha_length = await self.load_proper_model_characters(captcha_type)
@@ -100,7 +100,7 @@ class SolveCaptcha:
         return x_train, x_valid, y_train, y_valid
 
     @staticmethod
-    async def load_proper_model_characters(captcha_type):
+    async def load_proper_model_characters(captcha_type: int) -> tuple[keras.models.Model, list, int]:
         if captcha_type == 0:
             trained_model = load_model('trained_models/captcha_type_a.h5', custom_objects={'CTCLayer': CTCLayer})
             captcha_length = 5

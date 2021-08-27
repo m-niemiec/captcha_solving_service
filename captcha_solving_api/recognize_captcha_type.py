@@ -5,7 +5,7 @@ from keras.preprocessing import image
 
 class RecognizeCaptchaType:
     @staticmethod
-    async def get_captcha_type(image_path):
+    async def get_captcha_type(image_path: str) -> int:
         trained_model = load_model('trained_models/captcha_recognizer_model.h5')
 
         trained_model.compile(loss='binary_crossentropy',

@@ -13,3 +13,8 @@ uvloop==0.16.0
 watchgod==0.7
 websockets==9.1
 logzero~=1.7.0
+keras~=2.6.0
+tensorflow~=2.6.0
+numpy~=1.19.5
+opencv-python~=4.5.3.56
+Pillow~=8.3.1

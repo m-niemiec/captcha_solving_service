@@ -3,7 +3,7 @@ import uuid
 from io import BytesIO
 
 from PIL import Image
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
 
 
 class EvaluateRequest:
@@ -14,10 +14,11 @@ class EvaluateRequest:
         try:
             image_format = re.findall(r'.+\.(.+)', captcha_image.filename)[0].lower()
         except (IndexError, TypeError):
-            return 'ERROR'
+            raise HTTPException(status_code=400, detail='Oops! Missing extension after "." in your image!')
 
         if image_format.lower() not in accepted_formats:
-            return 'ERROR'
+            raise HTTPException(status_code=400, detail=f'Oops! Image format not supported. Our accepted formats are'
+                                                        f'here - {accepted_formats}')
 
         stream = BytesIO(await captcha_image.read())
         image = Image.open(stream).convert('RGB')

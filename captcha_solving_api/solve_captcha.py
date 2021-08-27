@@ -4,6 +4,7 @@ import pickle
 import keras
 import numpy as np
 import tensorflow as tf
+from fastapi import HTTPException
 from keras.models import load_model
 from tensorflow.keras import layers
 
@@ -53,7 +54,15 @@ class SolveCaptcha:
 
             os.remove(image_path)
 
-            return prediction_text
+            if '[UNK]'*2 in prediction_text:
+                raise HTTPException(status_code=400, detail='Oops! It seems that the image you passed is not our '
+                                                            'supported captcha type (or it\'s not captcha at all).')
+            elif '[UNK]' in prediction_text:
+                raise HTTPException(status_code=400, detail='Oops! It seems that this captcha is really hard to solve,'
+                                                            'please send another one. Credits weren\'t taken from your'
+                                                            'account')
+            else:
+                return prediction_text
 
     def encode_single_sample(self, img_path, label):
         img = tf.io.read_file(img_path)

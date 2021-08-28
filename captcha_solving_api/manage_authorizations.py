@@ -61,6 +61,7 @@ class ManageAuthorization:
             token_data = TokenData(username=username)
         except JWTError:
             raise credentials_exception
+
         user = self.get_user(self.fake_users_db, username=token_data.username)
 
         if user is None:
@@ -71,24 +72,31 @@ class ManageAuthorization:
 
     def authenticate_user(self, username: str, password: str):
         user = self.get_user(self.fake_users_db, username)
+
         if not user:
             return False
+
         if not self.verify_password(password, user.hashed_password):
             return False
+
         return user
 
     def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None):
         to_encode = data.copy()
+
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
         else:
             expire = datetime.utcnow() + timedelta(minutes=15)
+
         to_encode.update({'exp': expire})
         encoded_jwt = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
+
         return encoded_jwt
 
     @staticmethod
     def get_user(db, username: str):
         if username in db:
             user_dict = db[username]
+
             return UserInDB(**user_dict)

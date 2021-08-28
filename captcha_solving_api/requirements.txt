@@ -18,3 +18,5 @@ tensorflow~=2.6.0
 numpy~=1.19.5
 opencv-python~=4.5.3.56
 Pillow~=8.3.1
+passlib~=1.7.4
+python-jose~=3.3.0

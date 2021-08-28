@@ -56,11 +56,12 @@ class SolveCaptcha:
 
             if '[UNK]'*2 in prediction_text:
                 raise HTTPException(status_code=400, detail='Oops! It seems that the image you passed is not our '
-                                                            'supported captcha type (or it\'s not captcha at all).')
+                                                            'supported captcha type (or it\'s not captcha at all).'
+                                                            'Credits weren\'t taken from your account.')
             elif '[UNK]' in prediction_text:
                 raise HTTPException(status_code=400, detail='Oops! It seems that this captcha is really hard to solve,'
                                                             'please send another one. Credits weren\'t taken from your'
-                                                            'account')
+                                                            'account.')
             else:
                 return prediction_text
 

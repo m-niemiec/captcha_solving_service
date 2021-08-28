@@ -19,6 +19,4 @@ class RecognizeCaptchaType:
         images = np.vstack([x])
         classes = trained_model.predict(images, batch_size=10)
 
-        print(int(classes[0][0]))
-
         return int(classes[0][0])

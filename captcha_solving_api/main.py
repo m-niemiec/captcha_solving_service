@@ -1,17 +1,26 @@
+import os
 from datetime import timedelta
 
+from dotenv import load_dotenv
 from fastapi import File, UploadFile, Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi_sqlalchemy import DBSessionMiddleware, db
 from logzero import logger
 
 from evaluate_request import EvaluateRequest
 from manage_authorizations import Token, ManageAuthorization
+from models import User as ModelUser
 from recognize_captcha_type import RecognizeCaptchaType
+from schema import User as SchemaUser
 from solve_captcha import SolveCaptcha
 
 app = FastAPI()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+
+load_dotenv('.env')
+
+app.add_middleware(DBSessionMiddleware, db_url=os.environ['DATABASE_URL'])
 
 
 @app.post('/get_token', response_model=Token)
@@ -43,6 +52,20 @@ async def upload_captcha(captcha_image: UploadFile = File(...), token: str = Dep
     solution = await SolveCaptcha().get_solution(image_format, image_path, captcha_type)
 
     return solution
+
+
+@app.post('/add_user', response_model=SchemaUser)
+async def add_user(user: SchemaUser):
+    hashed_password = ManageAuthorization().get_password_hash(user.password)
+
+    user_db = ModelUser(username=user.username,
+                        email=user.email,
+                        credit_balance=10,
+                        hashed_password=hashed_password)
+    db.session.add(user_db)
+    db.session.commit()
+
+    return user_db
 
 
 @app.get('/health_check')

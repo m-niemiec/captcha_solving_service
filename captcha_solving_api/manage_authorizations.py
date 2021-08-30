@@ -70,6 +70,9 @@ class ManageAuthorization:
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
 
+    def get_password_hash(self, password):
+        return self.pwd_context.hash(password)
+
     def authenticate_user(self, username: str, password: str):
         user = self.get_user(self.fake_users_db, username)
 

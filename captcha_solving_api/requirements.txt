@@ -1,13 +1,14 @@
 asgiref==3.4.1
 click==8.0.1
 fastapi==0.68.0
+FastAPI-SQLAlchemy==0.2.1
 h11==0.12.0
 httptools==0.2.0
 pydantic==1.8.2
 python-dotenv==0.19.0
+python-multipart==0.0.5
 PyYAML==5.4.1
 starlette==0.14.2
-typing-extensions==3.10.0.0
 uvicorn==0.15.0
 uvloop==0.16.0
 watchgod==0.7
@@ -20,3 +21,6 @@ opencv-python~=4.5.3.56
 Pillow~=8.3.1
 passlib~=1.7.4
 python-jose~=3.3.0
+SQLAlchemy~=1.4.23
+alembic==1.6.5
+psycopg2-binary==2.9.1

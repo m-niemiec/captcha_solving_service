@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 from logzero import logger
 
+import add_preview_user
 from evaluate_request import EvaluateRequest
 from manage_authorizations import Token, ManageAuthorization
 from models import User as ModelUser
@@ -21,6 +22,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 load_dotenv('.env')
 
 app.add_middleware(DBSessionMiddleware, db_url=os.environ['DATABASE_URL'])
+
+with db():
+    add_preview_user.add_preview_user()
 
 
 @app.post('/get_token', response_model=Token)
@@ -61,7 +65,7 @@ async def add_user(user: SchemaUser):
     user_db = ModelUser(username=user.username,
                         email=user.email,
                         credit_balance=10,
-                        hashed_password=hashed_password)
+                        password=hashed_password)
     db.session.add(user_db)
     db.session.commit()
 

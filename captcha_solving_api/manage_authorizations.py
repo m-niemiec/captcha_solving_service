@@ -26,7 +26,6 @@ class TokenData(BaseModel):
 class ManageAuthorization:
     SECRET_KEY = os.environ['SECRET_KEY']
     ALGORITHM = os.environ['ALGORITHM']
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
     pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 

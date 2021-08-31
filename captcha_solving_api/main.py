@@ -28,7 +28,7 @@ with db():
 
 
 @app.post('/get_token', response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(token_lifespan=744, form_data: OAuth2PasswordRequestForm = Depends()):
     user = ManageAuthorization().authenticate_user(form_data.username, form_data.password)
 
     if not user:
@@ -38,7 +38,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             headers={'WWW-Authenticate': 'Bearer'},
         )
 
-    access_token_expires = timedelta(minutes=ManageAuthorization.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(hours=token_lifespan)
     access_token = ManageAuthorization().create_access_token(
         data={'sub': user.username}, expires_delta=access_token_expires
     )

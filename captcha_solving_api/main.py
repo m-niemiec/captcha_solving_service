@@ -26,9 +26,12 @@ app.add_middleware(DBSessionMiddleware, db_url=os.environ['DATABASE_URL'])
 with db():
     add_preview_users.add_preview_users()
 
+# Build one main instance of class SolveCaptcha to use 'global' semaphore.
+solve_captcha = SolveCaptcha()
+
 
 @app.post('/get_token', response_model=Token)
-async def login_for_access_token(token_lifespan=744, form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(token_lifespan=24, form_data: OAuth2PasswordRequestForm = Depends()):
     user = ManageAuthorization().authenticate_user(form_data.username, form_data.password)
 
     if not user:
@@ -82,7 +85,7 @@ async def upload_captcha(captcha_image: UploadFile = File(...), token: str = Dep
     image_format, image_path, image_metadata = await EvaluateRequest().analyze_image(captcha_image)
     captcha_type = await RecognizeCaptchaType().get_captcha_type(image_path)
 
-    solution = await SolveCaptcha().get_solution(user_id, image_format, image_path, captcha_type, image_metadata)
+    solution = await solve_captcha.get_solution(user_id, image_format, image_path, captcha_type, image_metadata)
 
     return solution
 

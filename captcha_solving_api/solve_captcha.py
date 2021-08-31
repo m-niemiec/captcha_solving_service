@@ -1,5 +1,6 @@
 import os
 import pickle
+import asyncio
 
 import keras
 import numpy as np
@@ -14,61 +15,64 @@ from models import CaptchaSolveQuery as ModelCaptchaSolveQuery, User as ModelUse
 
 
 class SolveCaptcha:
+    # Set semaphore to 5 to prevent server hardware from overloading when analyzing images.
+    semaphore = asyncio.Semaphore(5)
     image_format = None
     char_to_num = None
     num_to_char = None
 
     async def get_solution(self, user_id, image_format: str, image_path: str, captcha_type: int, image_metadata: str) -> str:
-        self.image_format = image_format
+        async with self.semaphore:
+            self.image_format = image_format
 
-        trained_model, characters, captcha_length = await self.load_proper_model_characters(captcha_type)
+            trained_model, characters, captcha_length = await self.load_proper_model_characters(captcha_type)
 
-        images = [image_path]
+            images = [image_path]
 
-        prediction_model = keras.models.Model(
-            trained_model.get_layer(name='image').input, trained_model.get_layer(name='dense2').output
-        )
+            prediction_model = keras.models.Model(
+                trained_model.get_layer(name='image').input, trained_model.get_layer(name='dense2').output
+            )
 
-        self.char_to_num = layers.experimental.preprocessing.StringLookup(
-            vocabulary=characters, mask_token=None
-        )
+            self.char_to_num = layers.experimental.preprocessing.StringLookup(
+                vocabulary=characters, mask_token=None
+            )
 
-        self.num_to_char = layers.StringLookup(
-            vocabulary=self.char_to_num.get_vocabulary(), mask_token=None, invert=True
-        )
+            self.num_to_char = layers.StringLookup(
+                vocabulary=self.char_to_num.get_vocabulary(), mask_token=None, invert=True
+            )
 
-        # Splitting data into training and validation sets
-        x_train, x_valid, y_train, y_valid = await self.split_data(np.array(images))
+            # Splitting data into training and validation sets
+            x_train, x_valid, y_train, y_valid = await self.split_data(np.array(images))
 
-        validation_dataset = tf.data.Dataset.from_tensor_slices((x_valid, y_valid))
-        validation_dataset = (
-            validation_dataset.map(
-                self.encode_single_sample, num_parallel_calls=tf.data.experimental.AUTOTUNE
-            ).batch(16).prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-        )
+            validation_dataset = tf.data.Dataset.from_tensor_slices((x_valid, y_valid))
+            validation_dataset = (
+                validation_dataset.map(
+                    self.encode_single_sample, num_parallel_calls=tf.data.experimental.AUTOTUNE
+                ).batch(16).prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+            )
 
-        for batch in validation_dataset.take(1):
-            batch_images = batch['image']
+            for batch in validation_dataset.take(1):
+                batch_images = batch['image']
 
-            prediction = prediction_model.predict(batch_images)
+                prediction = prediction_model.predict(batch_images)
 
-            prediction_text = self.decode_batch_predictions(prediction, captcha_length)[0]
+                prediction_text = self.decode_batch_predictions(prediction, captcha_length)[0]
 
-            os.remove(image_path)
+                os.remove(image_path)
 
-            if '[UNK]'*2 in prediction_text:
-                raise HTTPException(status_code=400, detail='Oops! It seems that the image you passed is not our '
-                                                            'supported captcha type (or it\'s not captcha at all).'
-                                                            'Credits weren\'t taken from your account.')
-            elif '[UNK]' in prediction_text:
-                raise HTTPException(status_code=400, detail='Oops! It seems that this captcha is really hard to solve,'
-                                                            'please send another one. Credits weren\'t taken from your'
-                                                            'account.')
-            else:
-                await self.add_captcha_solve_query(user_id, captcha_type, image_metadata, prediction_text)
-                await self.reduce_user_credit_balance(user_id)
+                if '[UNK]'*2 in prediction_text:
+                    raise HTTPException(status_code=400, detail='Oops! It seems that the image you passed is not our '
+                                                                'supported captcha type (or it\'s not captcha at all).'
+                                                                'Credits weren\'t taken from your account.')
+                elif '[UNK]' in prediction_text:
+                    raise HTTPException(status_code=400, detail='Oops! It seems that this captcha is really hard to solve,'
+                                                                'please send another one. Credits weren\'t taken from your'
+                                                                'account.')
+                else:
+                    await self.add_captcha_solve_query(user_id, captcha_type, image_metadata, prediction_text)
+                    await self.reduce_user_credit_balance(user_id)
 
-                return prediction_text
+                    return prediction_text
 
     def encode_single_sample(self, img_path, label):
         img = tf.io.read_file(img_path)

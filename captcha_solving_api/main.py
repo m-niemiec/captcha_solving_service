@@ -174,6 +174,11 @@ async def health_check():
     return {'message': 'I am alive and kicking!'}
 
 
+@app.on_event("startup")
+async def startup_event():
+    return logger.warning('Welcome! I am booting up now!')
+
+
 @app.on_event('shutdown')
 def shutdown_event():
     return logger.warning('Farewell! I am shutting down now ...')

@@ -5,10 +5,12 @@ import keras
 import numpy as np
 import tensorflow as tf
 from fastapi import HTTPException
+from fastapi_sqlalchemy import db
 from keras.models import load_model
 from tensorflow.keras import layers
 
 from ctc_layer import CTCLayer
+from models import CaptchaSolveQuery as ModelCaptchaSolveQuery, User as ModelUser
 
 
 class SolveCaptcha:
@@ -16,7 +18,7 @@ class SolveCaptcha:
     char_to_num = None
     num_to_char = None
 
-    async def get_solution(self, image_format: str, image_path: str, captcha_type: int) -> str:
+    async def get_solution(self, user_id, image_format: str, image_path: str, captcha_type: int, image_metadata: str) -> str:
         self.image_format = image_format
 
         trained_model, characters, captcha_length = await self.load_proper_model_characters(captcha_type)
@@ -63,6 +65,9 @@ class SolveCaptcha:
                                                             'please send another one. Credits weren\'t taken from your'
                                                             'account.')
             else:
+                await self.add_captcha_solve_query(user_id, captcha_type, image_metadata, prediction_text)
+                await self.reduce_user_credit_balance(user_id)
+
                 return prediction_text
 
     def encode_single_sample(self, img_path, label):
@@ -127,3 +132,22 @@ class SolveCaptcha:
                 characters = pickle.load(file)
 
             return trained_model, characters, captcha_length
+
+    @staticmethod
+    async def add_captcha_solve_query(user_id, captcha_type, image_metadata, prediction_text):
+        user_db = ModelCaptchaSolveQuery(captcha_metadata=image_metadata,
+                                         captcha_type=captcha_type,
+                                         captcha_solution=prediction_text,
+                                         user_id=user_id)
+        db.session.add(user_db)
+        db.session.commit()
+
+    @staticmethod
+    async def reduce_user_credit_balance(user_id):
+        current_credit_balance = db.session.query(ModelUser).filter(ModelUser.id == user_id).first()
+
+        if current_credit_balance.credit_balance > 1:
+            db.session.query(ModelUser).filter(ModelUser.id == user_id)\
+                .update({ModelUser.credit_balance: ModelUser.credit_balance - 1})
+
+            db.session.commit()

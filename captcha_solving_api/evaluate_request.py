@@ -8,7 +8,10 @@ from fastapi import UploadFile, HTTPException
 
 class EvaluateRequest:
     @staticmethod
-    async def analyze_image(captcha_image: UploadFile) -> tuple[str, str]:
+    async def analyze_image(captcha_image: UploadFile) -> tuple[str, str, str]:
+        if not captcha_image:
+            raise HTTPException(status_code=400, detail='Oops! This image doesn\'t exist!')
+
         accepted_formats = ['jpg', 'jpeg', 'png']
 
         try:
@@ -30,4 +33,6 @@ class EvaluateRequest:
 
         image.save(image_path)
 
-        return image_format, image_path
+        image_metadata = f'filename - {captcha_image.filename} / content_type - {captcha_image.content_type}'
+
+        return image_format, image_path, image_metadata

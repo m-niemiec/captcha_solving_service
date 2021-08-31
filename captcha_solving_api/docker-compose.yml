@@ -27,7 +27,7 @@ services:
     container_name: captcha_solving_api
     build: .
     image: captcha_solving_api:main
-    command: bash -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    command: bash -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
     volumes:
       - .:/captcha_solving_api
     ports:
@@ -38,20 +38,16 @@ services:
 
   migration:
     image: captcha_solving_api:main
-    command: alembic revision --autogenerate -m 'New Migration'
+    command: bash -c "alembic revision --autogenerate -m 'New Migration'"
     volumes:
       - .:/captcha_solving_api
-    links:
-      - database
     depends_on:
       - captcha_solving_api
 
   upgrade_head:
     image: captcha_solving_api:main
-    command: alembic upgrade head
+    command: bash -c "alembic upgrade head"
     volumes:
       - .:/captcha_solving_api
-    links:
-      - database
     depends_on:
       - migration

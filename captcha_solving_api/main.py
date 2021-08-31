@@ -10,11 +10,9 @@ from logzero import logger
 import add_preview_users
 from evaluate_request import EvaluateRequest
 from manage_authorizations import Token, ManageAuthorization
-from models import User as ModelUser
-from models import CreditsTransaction as ModelCreditsTransaction
+from models import User as ModelUser, CreditsTransaction as ModelCreditsTransaction
 from recognize_captcha_type import RecognizeCaptchaType
-from schema import User as SchemaUser
-from schema import CreditsTransaction as SchemaCreditsTransaction
+from schema import User as SchemaUser, CreditsTransaction as SchemaCreditsTransaction
 from solve_captcha import SolveCaptcha
 
 app = FastAPI()
@@ -110,7 +108,7 @@ async def add_user(user: SchemaUser):
     db.session.add(user_db)
     db.session.commit()
 
-    return user_db
+    return {'message': f'Added user - {user.username} successfully!'}
 
 
 @app.post('/add_credit_balance', response_model=SchemaCreditsTransaction)
@@ -142,7 +140,7 @@ async def add_credit_balance(credits_transaction: SchemaCreditsTransaction, toke
 
     db.session.commit()
 
-    return credits_transaction_db
+    return {'message': f'{credits_transaction.credit_amount} were added for user ID - {credits_transaction.user_id}!'}
 
 
 @app.post('/delete_user')

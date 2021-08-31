@@ -108,7 +108,7 @@ async def add_user(user: SchemaUser):
     db.session.add(user_db)
     db.session.commit()
 
-    return {'message': f'Added user - {user.username} successfully!'}
+    return user_db
 
 
 @app.post('/add_credit_balance', response_model=SchemaCreditsTransaction)
@@ -140,7 +140,7 @@ async def add_credit_balance(credits_transaction: SchemaCreditsTransaction, toke
 
     db.session.commit()
 
-    return {'message': f'{credits_transaction.credit_amount} were added for user ID - {credits_transaction.user_id}!'}
+    return credits_transaction_db
 
 
 @app.post('/delete_user')

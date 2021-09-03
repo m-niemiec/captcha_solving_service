@@ -7,7 +7,6 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi_sqlalchemy import DBSessionMiddleware, db
 from logzero import logger
 
-import add_preview_users
 from evaluate_request import EvaluateRequest
 from manage_authorizations import Token, ManageAuthorization
 from models import User as ModelUser, CreditsTransaction as ModelCreditsTransaction
@@ -15,16 +14,12 @@ from recognize_captcha_type import RecognizeCaptchaType
 from schema import User as SchemaUser, CreditsTransaction as SchemaCreditsTransaction
 from solve_captcha import SolveCaptcha
 
-app = FastAPI()
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
-
 load_dotenv('.env')
 
+app = FastAPI()
 app.add_middleware(DBSessionMiddleware, db_url=os.environ['DATABASE_URL'])
 
-with db():
-    add_preview_users.add_preview_users()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 # Build one main instance of class SolveCaptcha to use 'global' semaphore.
 solve_captcha = SolveCaptcha()
@@ -183,5 +178,21 @@ async def startup_event():
 
 
 @app.on_event('shutdown')
-def shutdown_event():
+async def shutdown_event():
     return logger.warning('Farewell! I am shutting down now ...')
+
+
+def add_preview_user(username, email, credit_balance):
+    hashed_password = ManageAuthorization().get_password_hash(username)
+
+    user_db = ModelUser(username=username,
+                        email=email,
+                        credit_balance=credit_balance,
+                        password=hashed_password)
+    db.session.add(user_db)
+    db.session.commit()
+
+
+with db():
+    add_preview_user('admin', 'admin@admin.com', 999999)
+    add_preview_user('test', 'test@test.com', 999999)

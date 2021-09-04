@@ -25,9 +25,9 @@ def test_upload_wrong_captcha():
                             ('tests/images_to_test/test_1.jpeg', '2KXQE'),
                             ('tests/images_to_test/test_2.jpeg', 'Z4WS3'),
                             ('tests/images_to_test/test_3.jpeg', '3AFKM'),
-                            ('tests/images_to_test/test_4.jpeg', '22+8=?'),
-                            ('tests/images_to_test/test_5.jpeg', '82+5=?'),
-                            ('tests/images_to_test/test_6.jpeg', '73+3=?')
+                            ('tests/images_to_test/test_4.jpeg', '30'),
+                            ('tests/images_to_test/test_5.jpeg', '87'),
+                            ('tests/images_to_test/test_6.jpeg', '76')
                          ]
                          )
 def test_upload_captcha(captcha_path, captcha_solution):

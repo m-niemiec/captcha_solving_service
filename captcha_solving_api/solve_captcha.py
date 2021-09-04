@@ -1,6 +1,7 @@
 import os
 import pickle
 import asyncio
+import re
 
 import keras
 import numpy as np
@@ -71,6 +72,13 @@ class SolveCaptcha:
                 else:
                     await self.add_captcha_solve_query(user_id, captcha_type, image_metadata, prediction_text)
                     await self.reduce_user_credit_balance(user_id)
+
+                    if any(sign in prediction_text for sign in ['=', '+']):
+                        try:
+                            prediction_text = re.findall(r'([0-9\+\-\\\*]+)', prediction_text)[0]
+                            prediction_text = str(eval(prediction_text))
+                        except (IndexError, SyntaxError):
+                            pass
 
                     return prediction_text
 

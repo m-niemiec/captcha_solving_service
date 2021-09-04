@@ -204,3 +204,4 @@ def add_preview_user(username, email, credit_balance):
 with db():
     add_preview_user('admin', 'admin@admin.com', 999999)
     add_preview_user('test', 'test@test.com', 999999)
+    add_preview_user('pytest', 'pytest@pytest.com', 6)

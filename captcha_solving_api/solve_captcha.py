@@ -148,10 +148,7 @@ class SolveCaptcha:
 
     @staticmethod
     async def reduce_user_credit_balance(user_id):
-        current_credit_balance = db.session.query(ModelUser).filter(ModelUser.id == user_id).first()
+        user = db.session.query(ModelUser).filter(ModelUser.id == user_id).first()
+        user.credit_balance -= 1
 
-        if current_credit_balance.credit_balance > 1:
-            db.session.query(ModelUser).filter(ModelUser.id == user_id)\
-                .update({ModelUser.credit_balance: ModelUser.credit_balance - 1})
-
-            db.session.commit()
+        db.session.commit()

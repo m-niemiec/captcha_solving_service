@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 
 from dotenv import load_dotenv
@@ -13,8 +14,15 @@ from models import User as ModelUser, CreditsTransaction as ModelCreditsTransact
 from recognize_captcha_type import RecognizeCaptchaType
 from schema import User as SchemaUser, CreditsTransaction as SchemaCreditsTransaction
 from solve_captcha import SolveCaptcha
+from tests.additional_test_functions import create_test_tables
 
 load_dotenv('.env')
+
+# Determine if API is running in test environment to override database if needed.
+if 'pytest' in sys.modules:
+    os.environ['DATABASE_URL'] = 'sqlite:///./test.db'
+    create_test_tables()
+
 
 app = FastAPI()
 app.add_middleware(DBSessionMiddleware, db_url=os.environ['DATABASE_URL'])
@@ -58,7 +66,7 @@ async def login_for_account_info(token: str = Depends(oauth2_scheme)):
 
     account_info = {
         'id': user.id,
-        'creadit_balance': user.credit_balance,
+        'credit_balance': user.credit_balance,
         'username': user.username,
         'email': user.email,
         'time_created': user.time_created,

@@ -46,8 +46,8 @@ class AppFunctionalView(ImageModifiers):
 
                 Settings.get_value('image_list').append([tk_image, image])
 
-        Settings.set_value('current_size', (Settings.get_value('image_list')[0][1].width,
-                                            Settings.get_value('image_list')[0][1].height))
+        width, height = self.get_proper_image_size()
+        Settings.set_value('current_size', (width, height))
 
         Settings.set_value('current_captcha_image', Label(image=Settings.get_value('image_list')[Settings.get_value('image_index')][0]))
         Settings.get_value('current_captcha_image').place(relx=0.5, rely=0.5, anchor='center')
@@ -59,6 +59,16 @@ class AppFunctionalView(ImageModifiers):
         self.update_captcha_image()
         self.update_renamed_images_count()
         self.render_additional_buttons()
+
+    @staticmethod
+    def get_proper_image_size() -> tuple[int, int]:
+        width, height = Settings.get_value('image_list')[0][1].width, Settings.get_value('image_list')[0][1].height
+        max_width, max_height = Settings.get_value('root').winfo_screenwidth() * 0.5, Settings.get_value('root').winfo_screenheight() * 0.5
+
+        width = width if width < max_width else max_width
+        height = height if height < max_height else max_height
+
+        return width, height
 
     @staticmethod
     def show_help():

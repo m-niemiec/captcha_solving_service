@@ -17,7 +17,8 @@ class AppFunctionalView(ImageModifiers):
         Settings.set_value('image_index', 0)
         Settings.set_value('image_list', [])
         Settings.set_value('captcha_solution_text', StringVar())
-        Settings.set_value('current_captcha_name', Label(text='', font=('calibri', 20), foreground='#D4d4d4', background='#313232'))
+        Settings.set_value('current_captcha_name', Label(text='', width=300, font=('calibri', 20), foreground='#D4d4d4',
+                                                         background='#313232'))
         Settings.set_value('renamed_total_images_amount', Label(text='', foreground='#D4d4d4', background='#313232'))
         Settings.set_value('update_captcha_image_method', self.update_captcha_image)
 

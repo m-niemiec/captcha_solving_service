@@ -3,7 +3,7 @@ from pathlib import Path
 from .test_main import test_get_token, client
 
 
-def test_upload_wrong_captcha(add_user_response):
+def test_upload_wrong_captcha(add_user):
     test_upload_file = Path('tests/images_to_test/test_0.jpeg')
 
     response = client.post('/upload_captcha',
@@ -18,7 +18,7 @@ def test_upload_wrong_captcha(add_user_response):
     assert 'Oops! It seems that the image you passed is not our supported captcha type' in detail
 
 
-def test_blocked_upload_captcha(add_user_response, add_credit_balance, reduce_credit_balance):
+def test_blocked_upload_captcha(add_user, add_credit_balance, reduce_credit_balance):
     test_upload_file = Path('tests/images_to_test/test_1.jpeg')
 
     response = client.post('/upload_captcha',

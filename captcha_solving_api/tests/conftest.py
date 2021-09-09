@@ -6,11 +6,22 @@ from .test_main import client, test_get_token
 
 
 @pytest.fixture(scope="session")
-def add_user_response():
+def add_user():
     test_password = 'pytest'
 
     response = client.post('/add_user', json={'username': 'pytest',
                                               'email': 'pytest@pytest',
+                                              'password': test_password})
+
+    return response
+
+
+@pytest.fixture(scope="function")
+def add_user_to_delete():
+    test_password = 'delete'
+
+    response = client.post('/add_user', json={'username': 'delete',
+                                              'email': 'delete@delete',
                                               'password': test_password})
 
     return response

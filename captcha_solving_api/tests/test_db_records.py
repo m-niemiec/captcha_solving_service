@@ -4,14 +4,14 @@ from models import User as ModelUser, CreditsTransaction as ModelCreditsTransact
     CaptchaSolveQuery as ModelCaptchaSolveQuery
 
 
-def test_users_amount(add_user_response):
+def test_users_amount(add_user):
     with db():
         users = db.session.query(ModelUser).all()
 
         assert len(users) == 3
 
 
-def test_utility_users_ids(add_user_response):
+def test_utility_users_ids(add_user):
     with db():
         admin_user = db.session.query(ModelUser).filter(ModelUser.username == 'admin').first()
         test_user = db.session.query(ModelUser).filter(ModelUser.username == 'test').first()
@@ -38,7 +38,7 @@ def test_credits_transaction_query(add_credit_balance, reduce_credit_balance):
         assert len(credits_transaction_query) == 2
 
 
-def test_users_credit_balance(add_user_response, add_credit_balance, reduce_credit_balance,
+def test_users_credit_balance(add_user, add_credit_balance, reduce_credit_balance,
                               upload_captcha: tuple[str, str, int]):
     task_index = upload_captcha[2]
 

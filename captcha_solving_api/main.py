@@ -9,6 +9,7 @@ from fastapi_sqlalchemy import DBSessionMiddleware, db
 from logzero import logger
 
 from evaluate_request import EvaluateRequest
+from helper_text import help_text_dict
 from manage_authorizations import Token, ManageAuthorization
 from models import User as ModelUser, CreditsTransaction as ModelCreditsTransaction
 from recognize_captcha_type import RecognizeCaptchaType
@@ -160,6 +161,13 @@ async def delete_user(delete_user_id, token: str = Depends(oauth2_scheme)):
             headers={'WWW-Authenticate': 'Bearer'},
         )
 
+    if delete_user_id == 1 or delete_user_id == 2:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='You cannot delete admin and test user!',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+
     user = db.session.query(ModelUser).filter(ModelUser.id == delete_user_id).first()
 
     if not user:
@@ -173,6 +181,16 @@ async def delete_user(delete_user_id, token: str = Depends(oauth2_scheme)):
     db.session.commit()
 
     return {'message': f'User ID - {delete_user_id} was successfully deleted!'}
+
+
+@app.get('/')
+async def home():
+    return {'message': 'Welcome to Captcha Solving Service! For help, visit /info Have fun!'}
+
+
+@app.get('/info')
+async def info():
+    return help_text_dict
 
 
 @app.get('/health_check')

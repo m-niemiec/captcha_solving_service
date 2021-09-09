@@ -1,8 +1,7 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
-
 
 Base = declarative_base()
 
@@ -14,7 +13,7 @@ class CreditsTransaction(Base):
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     user_id = Column(Integer, ForeignKey('user.id'))
 
-    user = relationship('User')
+    user = relationship('User', backref=backref("CreditsTransaction", cascade="all,delete"))
 
 
 class CaptchaSolveQuery(Base):
@@ -26,7 +25,7 @@ class CaptchaSolveQuery(Base):
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     user_id = Column(Integer, ForeignKey('user.id'))
 
-    user = relationship('User')
+    user = relationship('User', backref=backref("CaptchaSolveQuery", cascade="all,delete"))
 
 
 class User(Base):
@@ -38,3 +37,6 @@ class User(Base):
     password = Column(String)
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     time_updated = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # credits_transaction = relationship("CreditsTransaction", cascade="all,delete", backref="parent")
+    # captcha_solve_query = relationship("CaptchaSolveQuery", cascade="all,delete", backref="parent")

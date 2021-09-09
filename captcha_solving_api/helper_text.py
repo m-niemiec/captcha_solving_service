@@ -1,5 +1,5 @@
 evaluate_captcha_curl = """
-curl -X POST "/upload_captcha" --header "Authorization: Bearer [YOUR_TOKEN]" -F captcha_image=@/Users/mniemiec/Documents/test.jpeg
+curl -X POST "/upload_captcha" --header "Authorization: Bearer [YOUR_TOKEN]" -F captcha_image=@/directory/file.jpeg
 """
 
 get_token_curl = """
@@ -23,7 +23,8 @@ curl -X POST "/get_account_info" --header "Authorization: Bearer [YOUR_TOKEN]"
 """
 
 help_text_dict = {
-    'message': 'Welcome to Captcha Solving Service! You can create account here, add points and solve your captcha!',
+    'message': 'Welcome to Captcha Solving Service! You can create account here, add points and solve your captcha!'
+               'Below you can find example curl requests for various endpoints.',
     'evaluate_captcha_curl': evaluate_captcha_curl,
     'get_token_curl': get_token_curl,
     'delete_user_curl': delete_user_curl,

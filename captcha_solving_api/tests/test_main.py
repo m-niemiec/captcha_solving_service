@@ -86,7 +86,7 @@ def test_info():
 
     assert response.status_code == 200
     assert 'message' in response.json().keys()
-    assert 'evaluate_captcha_curl' in response.json().keys()
+    assert 'example_evaluate_captcha_curl' in response.json().keys()
 
 
 def test_delete_user(add_user_to_delete):

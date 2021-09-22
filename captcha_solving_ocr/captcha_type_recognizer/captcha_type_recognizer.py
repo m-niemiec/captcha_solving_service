@@ -12,8 +12,8 @@ NUM_FILTERS = 32
 INPUT_SIZE = 32
 MAXPOOL_SIZE = 2
 BATCH_SIZE = 16
-STEPS_PER_EPOCH = 1000 // BATCH_SIZE
-EPOCHS = 5
+STEPS_PER_EPOCH = 16 // BATCH_SIZE
+EPOCHS = 50
 
 
 def train_recognizer_model():
@@ -35,8 +35,8 @@ def train_recognizer_model():
 
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    training_src: Path = Path('./captcha_data_sets/')
-    testing_src: Path = Path('captcha_type_recognizer/captcha_data_train_sets/')
+    training_src: Path = Path('captcha_type_recognizer/captcha_data_train_sets/train')
+    testing_src: Path = Path('captcha_type_recognizer/captcha_data_train_sets/test')
 
     training_data_generator = ImageDataGenerator()
     testing_data_generator = ImageDataGenerator()

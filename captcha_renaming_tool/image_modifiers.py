@@ -9,7 +9,7 @@ from settings import Settings
 
 
 class ImageModifiers(ImageControl):
-    current_zoom: int = 1
+    current_zoom: float = 1
     black_white_mode: bool = False
     big_contrast_mode: bool = False
     next_image_icon = None
@@ -73,7 +73,7 @@ class ImageModifiers(ImageControl):
                                                   image=self.change_contrast_color_icon, compound='left')
         change_contrast_color_button.grid(row=0, column=5, padx=3, pady=3)
 
-    def set_zoom(self, direction: int):
+    def set_zoom(self, direction: str):
         if direction == 'increase' and self.current_zoom < 2:
             self.current_zoom += 0.25
 

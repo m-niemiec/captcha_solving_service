@@ -23,6 +23,22 @@ services:
     depends_on:
       - database
 
+  migration:
+    image: captcha_solving_api:main
+    command: bash -c "alembic revision --autogenerate -m 'New Migration'"
+    volumes:
+      - .:/captcha_solving_api
+    depends_on:
+      - pgadmin
+
+  upgrade_head:
+    image: captcha_solving_api:main
+    command: bash -c "alembic upgrade head"
+    volumes:
+      - .:/captcha_solving_api
+    depends_on:
+      - migration
+
   captcha_solving_api:
     container_name: captcha_solving_api
     build: .
@@ -33,21 +49,7 @@ services:
     ports:
       - "80:8000"
     depends_on:
-      - database
+      - upgrade_head
+    environment:
+      WAIT_HOSTS: postgres:5432, pgadmin:5050
     restart: always
-
-  migration:
-    image: captcha_solving_api:main
-    command: bash -c "alembic revision --autogenerate -m 'New Migration'"
-    volumes:
-      - .:/captcha_solving_api
-    depends_on:
-      - captcha_solving_api
-
-  upgrade_head:
-    image: captcha_solving_api:main
-    command: bash -c "alembic upgrade head"
-    volumes:
-      - .:/captcha_solving_api
-    depends_on:
-      - migration

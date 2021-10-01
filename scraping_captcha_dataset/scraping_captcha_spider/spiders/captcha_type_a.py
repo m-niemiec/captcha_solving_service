@@ -31,7 +31,7 @@ class CaptchaTypeA(spiders.CrawlSpider):
         captcha_image_url = response.xpath('//img[@id="captcha_contentplaceholder1_botdetectcaptcha_CaptchaImage"]/@src').get()
 
         captcha_image = CaptchaImageItem()
-        captcha_image['image_name'] = f'captcha_type_c_{self.captchas_counter}'
+        captcha_image['image_name'] = f'captcha_type_a_{self.captchas_counter}'
         captcha_image['image_urls'] = [response.urljoin(captcha_image_url)]
 
         yield captcha_image

@@ -1,6 +1,6 @@
 # **Captcha Solving Service**
 
-[!!! SCREENSHOT !!!]
+![captcha_solving_service_screen_main](https://user-images.githubusercontent.com/59567076/135750575-c70c8153-f85f-4511-80d0-f1844a35c6fc.jpg)
 
 This time I decided to create something bigger, with more depth to it in order to learn more. 
 
@@ -12,7 +12,7 @@ Working on this project was very fun and fulfilling. I had many opportunities to
 
 ## **Part I - Scraping Captcha Dataset:**
 
-[!!! SCREENSHOT !!!]
+![captcha_solving_service_screen_1](https://user-images.githubusercontent.com/59567076/135750569-3061824f-38aa-432c-bd3c-5808e8f80d75.jpg)
 
 Firstly I selected 2 example captcha types and with Scrapy I needed to gather enough data to have a learning dataset for my model.
 
@@ -20,7 +20,7 @@ After solving some problems with monkey patching MediaPipeline it went smoothly.
 
 ## **Part II - Captcha Renaming Tool:**
 
-[!!! SCREENSHOT !!!]
+![captcha_solving_service_screen_2](https://user-images.githubusercontent.com/59567076/135750570-98c9225b-db67-44e6-932e-a125cc3f321b.jpg)
 
 After I gathered captcha images I had to come up with a better way of renaming them than the ones that are built in operating systems because of dataset sizes.
 
@@ -28,7 +28,7 @@ I decided to build an application with the help of Tkinter and Pillow. The app h
 
 ## **Part III - Captcha Solving OCR:**
 
-[!!! SCREENSHOT !!!]
+![captcha_solving_service_screen_3](https://user-images.githubusercontent.com/59567076/135750571-65e167d4-5e80-4caf-a35d-2f63b3787c05.jpg)
 
 When all captcha images were renamed with proper solutions, it was time to actually build and save Machine Learning models with Tensorflow and Keras.
 
@@ -38,7 +38,7 @@ In this task, the book "Neural Network Projects with Python" written by James Lo
 
 ## **Part IV - Captcha Solving API:**
 
-[!!! SCREENSHOT !!!]
+![captcha_solving_service_screen_4](https://user-images.githubusercontent.com/59567076/135750573-bf700f8f-df29-4ff5-b750-21758d358d63.jpg)
 
 The final part of the whole project. I decided to go with Fast API for this task to also explore deeper asynchronous programming and PostgreSQL with SQLAlchemy for database tasks. For security, I used oauth2. I wanted to create an API so every potential "user" could get their captcha solved. I created several endpoints for things like, solving captcha, adding, deleting, viewing info about users and adding credits.
 
@@ -50,7 +50,8 @@ As a final touch, I decided to host it on AWS with EC2. Here is address - http:/
 
 Example captcha images to solve:
 
-[!!! CAPTCHA_1 !!!][!!! CAPTCHA_2 !!!]
+![captcha_solving_service_test_captcha_1](https://user-images.githubusercontent.com/59567076/135750576-bfaa8ebd-cbbe-4172-8498-a0d24a3a2993.jpeg)
+![captcha_solving_service_test_captcha_2](https://user-images.githubusercontent.com/59567076/135750577-20099cd2-c462-41e9-b042-398240c9af24.jpeg)
 
 ### **Example API CURLs:**
 

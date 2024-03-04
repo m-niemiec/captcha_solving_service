@@ -46,7 +46,7 @@ API was accepting CURL requests formdata with captcha images, which were process
 
 I Dockerized the whole API alongside PostgreSQL and PgAdmin using docker-compose.
 
-As a final touch, I decided to host it on AWS with EC2. Here is address - http://18.189.161.236/
+As a final touch, I decided to host it on AWS with EC2.
 
 Example captcha images to solve:
 
@@ -94,7 +94,7 @@ _Delete User:_
 3. run `docker-compose -f docker-compose-deployment.yml --env-file env up` command to build and start images
 4. After build will finish, the API will be available on address http://127.0.0.1/ or http://0.0.0.0/
 
-API is also available online on AWS EC2 on this address - http://18.189.161.236/
+Previously, API was also available online, hosted on AWS EC2.
 
 **Some of the technologies used** - Scrapy, Tkinter, Pillow, Py2app, Tensorflow, Keras, FastAPI, PostgreSQL, SQLAlchemy, pytest, Docker, docker-compose, AWS, EC2
 
